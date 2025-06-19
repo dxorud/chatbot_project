@@ -6,8 +6,8 @@ on:
       - main
 
 env:
-  BACKEND_IMAGE: yourid/chatbot-backend
-  FRONTEND_IMAGE: yourid/chatbot-frontend
+  BACKEND_IMAGE: dxorud/chatbot-backend
+  FRONTEND_IMAGE: dxorud/chatbot-frontend
   EC2_HOST: ${{ secrets.HOST }}
   EC2_USERNAME: ${{ secrets.USERNAME }}
   EC2_KEY: ${{ secrets.KEY }}
