@@ -1,0 +1,70 @@
+.left-section, .center-section, .right-section {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 감정 소비 요약 */
+.emotion-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+.emotion-item {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* AI 피드백 박스 */
+.feedback-box {
+  background: #fef3c7;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* 월간 차트 자리 */
+.monthly-chart {
+  margin: 30px 0;
+}
+.chart-placeholder {
+  height: 120px;
+  background: #e0e7ff;
+  border-radius: 10px;
+  text-align: center;
+  line-height: 120px;
+  font-size: 20px;
+}
+
+/* 빠른 이동 버튼 */
+.quick-menu {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.quick-menu button {
+  flex: 1 1 40%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #a78bfa;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.quick-menu button:hover {
+  background: #7c3aed;
+}
+
+/* 응원메세지 + 저축현황 */
+.saving-box {
+  margin-top: 30px;
+  background: #f0f9ff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}

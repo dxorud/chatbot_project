@@ -1,0 +1,140 @@
+/* 전체 페이지 설정 */
+body {
+  margin: 0;
+  font-family: 'Noto Sans KR', sans-serif;
+  background: #f5f0ff;
+}
+
+/* 좌우 전체 레이아웃 */
+.diary-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ---------------- 좌측 패널 ---------------- */
+.left-panel {
+  flex: 1;
+  background: #e4d4ff;
+  color: #4b0082;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px;
+  text-align: center;
+}
+
+.left-panel h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.left-panel p {
+  font-size: 1.2rem;
+  color: #3d027a;
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+.left-panel img {
+  width: 380px;
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------------- 우측 패널 ---------------- */
+.right-panel {
+  flex: 1;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px;
+}
+
+/* 탭 버튼 */
+.tab-buttons {
+  display: flex;
+  background: #f3e8ff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 32px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.tab-buttons button {
+  flex: 1;
+  padding: 16px 0;
+  border: none;
+  background: transparent;
+  color: #4b0082;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.tab-buttons button.active {
+  background: #b991f5;
+  color: white;
+}
+
+.tab-buttons button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* 입력창 */
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 400px;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.form input {
+  padding: 16px;
+  border: 1px solid #d6c9f1;
+  background-color: #f7f3ff;
+  border-radius: 14px;
+  font-size: 1.05rem;
+  outline: none;
+  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.form input:focus {
+  border: 1px solid #b991f5;
+}
+
+/* 시작하기 버튼 */
+.start-btn {
+  width: 100%;
+  max-width: 400px;
+  padding: 16px;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.start-btn:hover {
+  background: #5b21b6;
+}
+
+.start-btn:focus {
+  outline: none;
+  box-shadow: none;
+}

@@ -1,0 +1,73 @@
+.left-box, .center-box {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 감정 그래프 스타일 */
+.emotion-bars {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 200px;
+  margin: 20px 0;
+}
+.bar-container {
+  text-align: center;
+}
+.bar {
+  width: 40px;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 8px;
+}
+.bar-1 { background: #a78bfa; }
+.bar-2 { background: #7dd3fc; }
+.bar-3 { background: #fbbf24; }
+.bar-4 { background: #f87171; }
+
+.robot-img {
+  width: 180px;
+  display: block;
+  margin: 0 auto;
+  margin-top: 20px;
+}
+
+/* 중앙 소비 결과 */
+.summary {
+  background: #fef9ff;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.line-chart {
+  height: 100px;
+  background: linear-gradient(to right, #e0e7ff, #c4b5fd);
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+/* 추천 박스 */
+.recommendation {
+  display: flex;
+  gap: 20px;
+}
+.card {
+  flex: 1;
+  background: #fafafa;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+.card button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+}
+.good button { background: #93c5fd; color: white; }
+.saving button { background: #fbbf24; color: white; }
+.worry button { background: #f87171; color: white; }

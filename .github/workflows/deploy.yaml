@@ -1,0 +1,69 @@
+name: Deploy Chatbot App to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+  BACKEND_IMAGE: yourid/chatbot-backend
+  FRONTEND_IMAGE: yourid/chatbot-frontend
+  EC2_HOST: ${{ secrets.EC2_HOST }}
+  EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+  EC2_KEY: ${{ secrets.EC2_KEY }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_TOKEN }}
+
+      - name: Build and Push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ env.BACKEND_IMAGE }}:latest
+
+      - name: Build and Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ env.FRONTEND_IMAGE }}:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.EC2_USERNAME }}
+          key: ${{ env.EC2_KEY }}
+          port: 22
+          script: |
+            echo "--- Pulling latest Docker images ---"
+            docker pull ${{ env.BACKEND_IMAGE }}:latest
+            docker pull ${{ env.FRONTEND_IMAGE }}:latest
+
+            echo "--- Stopping existing containers ---"
+            docker stop chatbot_backend || true
+            docker rm chatbot_backend || true
+            docker stop chatbot_frontend || true
+            docker rm chatbot_frontend || true
+
+            echo "--- Running backend on port 5000 ---"
+            docker run -d --name chatbot_backend -p 5000:5000 ${{ env.BACKEND_IMAGE }}:latest
+
+            echo "--- Running frontend on port 5173 ---"
+            docker run -d --name chatbot_frontend -p 5173:5173 ${{ env.FRONTEND_IMAGE }}:latest
