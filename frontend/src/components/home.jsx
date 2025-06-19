@@ -1,52 +1,47 @@
 import React, { useState } from 'react';
-import Layout from './layout';
+import Layout from './layout'; 
 import './home.css';
 
 export default function Home() {
-  const LeftSection = (
-    <div className="left-section">
-      <h3>오늘의 감정소비 요약</h3>
-      <div className="emotion-summary">
-        <div className="emotion-item">😢 우울 소비: 60%</div>
-        <div className="emotion-item">😰 불안 소비: 25%</div>
-        <div className="emotion-item">😊 기쁨 소비: 15%</div>
+  const centerContent = (
+    <div className="home">
+      <div className="home-welcome">
+        <h1>😊 태경님, 반가워요!</h1>
+        <p>오늘의 소비 감정을 돌아볼 준비 되셨나요?</p>
+      </div>
+
+      <div className="home-summary">
+        <h2>📊 오늘의 소비 요약</h2>
+        <div className="home-summary-cards">
+          <div className="home-card">
+            <span>총 소비 금액</span>
+            <strong>25,000원</strong>
+          </div>
+          <div className="home-card">
+            <span>소비 건수</span>
+            <strong>3건</strong>
+          </div>
+          <div className="home-card">
+            <span>주요 감정</span>
+            <strong>😊 만족</strong>
+          </div>
+        </div>
+      </div>
+
+      <div className="home-actions">
+        <h2>🧭 빠른 이동</h2>
+        <div className="home-buttons">
+          <a href="/analysis">감정 분석</a>
+          <a href="/chat">챗봇 대화</a>
+          <a href="/diary">소비 일기</a>
+        </div>
+      </div>
+
+      <div className="home-tip">
+        💡 <em>지금의 감정이 내 소비를 어떻게 바꾸었는지 살펴보는 건 어때요?</em>
       </div>
     </div>
   );
 
-  const CenterSection = (
-    <div className="center-section">
-      <h3>AI 감정소비 피드백</h3>
-      <div className="feedback-box">
-        오늘은 약간의 충동구매가 있었어요.  
-        감정소비를 줄이기 위해 산책이나 독서를 추천합니다 🌿
-      </div>
-
-      <div className="monthly-chart">
-        <h4>월간 소비감정 추이</h4>
-        <div className="chart-placeholder">📈 그래프 자리</div>
-      </div>
-
-      <div className="quick-menu">
-        <button>감정소비 분석</button>
-        <button>챗봇 대화</button>
-        <button>소비일기 작성</button>
-        <button>미래소비 예측</button>
-      </div>
-    </div>
-  );
-
-  const RightSection = (
-    <div className="right-section">
-      <h3>오늘의 응원메세지</h3>
-      <p>당신은 오늘도 감정소비를 잘 관리하고 있습니다 💪</p>
-
-      <div className="saving-box">
-        <h4>이번달 저축 누적</h4>
-        <p>₩ 28,000</p>
-      </div>
-    </div>
-  );
-
-  return <Layout left={LeftSection} center={CenterSection} right={RightSection} />;
+  return <Layout center={centerContent} />;
 }

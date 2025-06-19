@@ -26,7 +26,7 @@ const Layout = ({ left, center, right }) => {
             <img src={logo} alt="리마인봇 로고" style={{ height: '80px', verticalAlign: 'middle' }} />
           </div>
           <ul style={{ display: 'flex', gap: '30px', listStyle: 'none', margin: 0, padding: 0 }}>
-            <li><Link to="/" style={{ textDecoration: 'none', fontSize: '20px', color: '#666' }}>Home</Link></li>
+            <li><Link to="/home" style={{ textDecoration: 'none', fontSize: '20px', color: '#666' }}>Home</Link></li>
             <li><Link to="/analysis" style={{ textDecoration: 'none', fontSize: '20px', color: '#666' }}>Analysis</Link></li>
             <li><Link to="/chat" style={{ textDecoration: 'none', fontSize: '20px', color: '#666' }}>Chat</Link></li>
             <li><Link to="/diary" style={{ textDecoration: 'none', fontSize: '20px', color: '#666' }}>Diary</Link></li>
