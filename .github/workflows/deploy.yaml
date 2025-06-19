@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout source code
         uses: actions/checkout@v4
 
       - name: Login to Docker Hub
@@ -26,7 +26,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Backend
+      - name: Build and Push Backend Image
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -34,7 +34,7 @@ jobs:
           push: true
           tags: ${{ env.BACKEND_IMAGE }}:latest
 
-      - name: Build and Push Frontend
+      - name: Build and Push Frontend Image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -42,7 +42,7 @@ jobs:
           push: true
           tags: ${{ env.FRONTEND_IMAGE }}:latest
 
-      - name: Deploy to EC2
+      - name: Deploy to EC2 and Run Containers
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.EC2_HOST }}
@@ -50,18 +50,24 @@ jobs:
           key: ${{ env.EC2_KEY }}
           port: 22
           script: |
-            echo "--- Pulling latest Docker images ---"
+            echo "Pulling latest Docker images..."
             docker pull ${{ env.BACKEND_IMAGE }}:latest
             docker pull ${{ env.FRONTEND_IMAGE }}:latest
 
-            echo "--- Stopping existing containers ---"
-            docker stop chatbot_backend || true
-            docker rm chatbot_backend || true
-            docker stop chatbot_frontend || true
-            docker rm chatbot_frontend || true
+            echo "Stopping and removing old containers..."
+            docker rm -f chatbot_backend || true
+            docker rm -f chatbot_frontend || true
 
-            echo "--- Running backend on port 5000 ---"
-            docker run -d --name chatbot_backend -p 5000:5000 ${{ env.BACKEND_IMAGE }}:latest
+            echo "Running backend container on port 5000..."
+            docker run -d \
+              --name chatbot_backend \
+              --restart unless-stopped \
+              -p 5000:5000 \
+              ${{ env.BACKEND_IMAGE }}:latest
 
-            echo "--- Running frontend on port 5173 ---"
-            docker run -d --name chatbot_frontend -p 5173:5173 ${{ env.FRONTEND_IMAGE }}:latest
+            echo "Running frontend container on port 5173..."
+            docker run -d \
+              --name chatbot_frontend \
+              --restart unless-stopped \
+              -p 5173:5173 \
+              ${{ env.FRONTEND_IMAGE }}:latest
