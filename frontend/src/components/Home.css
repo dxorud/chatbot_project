@@ -1,0 +1,121 @@
+.home-container {
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #faf6ff;
+  padding: 40px 20px;
+}
+
+/* 상단 Hero */
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f4ecff;
+  padding: 60px 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.hero-text {
+  max-width: 550px;
+  text-align: left;
+  margin: 20px;
+}
+
+.hero-text h1 {
+  font-size: 2rem;
+  color: #4b0082;
+  margin-bottom: 12px;
+}
+
+.hero-text p {
+  font-size: 1.1rem;
+  color: #6a0dad;
+}
+
+.hero-image {
+  width: 300px; /* 이미지 크게 */
+  height: auto;
+  margin: 20px;
+}
+
+/* 카드 슬라이더 */
+.card-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.card-container {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 20px 0;
+  width: 70%;
+}
+
+/* 스크롤바 감추기 */
+.card-container::-webkit-scrollbar {
+  display: none;
+}
+.card-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.feature-card {
+  flex: 0 0 240px;
+  background-color: #e9d8ff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  text-align: center;
+  color: #4b0082;
+}
+
+.feature-card h3 {
+  font-size: 1.2rem;
+  margin: 12px 0 6px;
+}
+
+.feature-card p {
+  font-size: 0.95rem;
+  color: #6a0dad;
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+}
+
+/* 화살표 버튼 */
+.arrow {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #6a0dad;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.arrow:hover {
+  transform: scale(1.2);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .hero-section {
+    flex-direction: column-reverse;
+    text-align: center;
+  }
+
+  .hero-text {
+    text-align: center;
+  }
+
+  .card-container {
+    width: 90%;
+  }
+}

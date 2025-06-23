@@ -1,0 +1,248 @@
+.analysis-container {
+  padding: 60px 20px;
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #faf6ff;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.analysis-container h2 {
+  font-size: 2rem;
+  color: #4b0082;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.analysis-container p {
+  font-size: 1.1rem;
+  color: #6a0dad;
+}
+
+/* 드롭다운 & 버튼 */
+.analysis-control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.analysis-control button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #d3c0f3;
+  background-color: white;
+  color: #4b0082;
+  font-size: 1rem;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.analysis-control button:hover {
+  background-color: #f0e5ff;
+}
+
+/* 드롭다운 */
+.dropdown-wrapper {
+  position: relative;
+  width: 100px;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.dropdown-header {
+  padding: 8px 12px;
+  border: 1px solid #d3c0f3;
+  border-radius: 8px;
+  background-color: white;
+  color: #4b0082;
+  font-size: 1rem;
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  max-height: 160px;
+  overflow-y: auto;
+  border: 1px solid #d3c0f3;
+  background-color: #fff;
+  border-radius: 8px;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #4b0082;
+}
+
+.dropdown-item:hover {
+  background-color: #f0e5ff;
+}
+
+/* 주요 지출 / 감정 카드 좌우 배치 */
+.analysis-card-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.analysis-card {
+  flex: 1;
+  min-width: 300px;
+  max-width: 480px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.3s ease-in-out;
+}
+
+.analysis-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.analysis-card h3 {
+  margin-bottom: 20px;
+  color: #4b0082;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.analysis-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.analysis-card li {
+  font-size: 1.05rem;
+  padding: 10px 20px;
+  background-color: #f6f0ff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  color: #333;
+  font-weight: 500;
+  width: fit-content;
+  max-width: 100%;
+  text-align: center;
+  transition: all 0.25s ease-in-out;
+}
+
+.analysis-card li:hover {
+  background-color: #eae2ff;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 감정 없음 메시지 */
+.empty-emotion-message {
+  font-size: 1rem;
+  color: #a89cc8;
+  margin-top: 8px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* AI 인사이트 카드 */
+.ai-summary-card {
+  background: #fffafc;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 30px auto;
+  max-width: 1000px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.ai-summary-card h3 {
+  color: #ff69b4;
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+}
+
+.ai-summary-card p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* 그래프 영역 */
+.graph-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin: 40px auto 60px;
+  max-width: 1080px;
+  padding: 0 10px;
+}
+
+.graph-box {
+  flex: 1 1 400px;
+  max-width: 500px;
+  background: #ffffff;
+  padding: 24px 18px;
+  border-radius: 16px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  transition: transform 0.2s ease;
+  min-height: 360px; /* ✅ 추가: 그래프 없을 때도 높이 유지 */
+}
+
+.graph-box:hover {
+  transform: translateY(-4px);
+}
+
+.graph-box h3 {
+  margin-bottom: 16px;
+  color: #4b0082;
+  font-size: 1.2rem;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .analysis-card,
+  .graph-box {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .dropdown-wrapper {
+    width: 90px;
+  }
+
+  .analysis-control {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .graph-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ai-summary-card {
+    padding: 20px;
+    margin: 24px 0;
+  }
+}

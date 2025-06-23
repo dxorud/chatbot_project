@@ -9,6 +9,8 @@ services:
     ports:
       - "5000:5000"
     restart: always
+    env_file:
+      - ./backend/.env
 
   frontend:
     build:
@@ -16,5 +18,9 @@ services:
       dockerfile: Dockerfile
     container_name: chatbot_frontend
     ports:
-      - "56173:5173"
+      - "5173:5173"
     restart: always
+    depends_on:
+      - backend
+    env_file:
+      - ./frontend/.env
