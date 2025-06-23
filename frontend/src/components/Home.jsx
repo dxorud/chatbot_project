@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import './Home.css';
-import chatbotImage from '../assets/chatbot.png'; // 실제 파일명으로 변경
+import chatbotImage from '../assets/chatbot.png'; 
 
 // 아이콘 예시 (직접 파일 import하거나 SVG 사용 가능)
 import icon1 from '../assets/icon-analysis.png';
