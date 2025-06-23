@@ -10,7 +10,7 @@ services:
       - "5000:5000"
     restart: always
     env_file:
-      - ./backend/.env
+      - .env
 
   frontend:
     build:
@@ -23,4 +23,4 @@ services:
     depends_on:
       - backend
     env_file:
-      - ./frontend/.env
+      - .env
