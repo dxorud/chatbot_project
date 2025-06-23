@@ -65,9 +65,9 @@ jobs:
               -p 5000:5000 \
               ${{ env.BACKEND_IMAGE }}:latest
 
-            echo "Running frontend container on port 8505..."
+            echo "Running frontend container on port 8506..."
             docker run -d \
               --name chatbot_frontend \
               --restart unless-stopped \
-              -p 8505:8505 \
+              -p 8506:8506 \
               ${{ env.FRONTEND_IMAGE }}:latest

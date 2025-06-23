@@ -13,8 +13,8 @@ RUN npm install
 # 소스 전체 복사 (여기에는 .env도 포함 가능)
 COPY . .
 
-# Vite 개발 서버가 사용할 포트
-EXPOSE 5173
+# Vite 개발 서버가 사용할 포트 (8506으로 변경)
+EXPOSE 8506
 
 # Vite dev 서버 실행 - 반드시 0.0.0.0으로 외부 접근 허용
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "8505"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "8506"]
