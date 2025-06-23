@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
     container_name: chatbot_frontend
     ports:
-      - "5173:5173"
+      - "8505:8505"
     restart: always
     depends_on:
       - backend

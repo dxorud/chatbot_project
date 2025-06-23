@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5173
 
 # Vite dev 서버 실행 - 반드시 0.0.0.0으로 외부 접근 허용
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "8505"]
