@@ -6,8 +6,8 @@ on:
       - main
 
 env:
-  BACKEND_IMAGE: tjdusdl/backend-app
-  FRONTEND_IMAGE: tjdusdl/react-app
+  BACKEND_IMAGE: dxorud/chatbot_backend
+  FRONTEND_IMAGE: dxorud/chatbot_frontend
 
   EC2_HOST: ${{ secrets.HOST }}
   EC2_USERNAME: ${{ secrets.USERNAME }}
