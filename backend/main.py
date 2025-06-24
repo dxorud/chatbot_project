@@ -9,7 +9,6 @@ load_dotenv()
 
 app = FastAPI()
 
-# ✅ CORS 설정: 모든 origin 허용 (개발용)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],           # 모든 도메인에서 접근 허용
