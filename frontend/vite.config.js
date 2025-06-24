@@ -9,7 +9,7 @@ export default defineConfig({
     strictPort: true,
     cors: true,
     allowedHosts: [
-      'perfect-valued-sculpin.ngrok-free.app' 
+      'advanced-closely-garfish.ngrok-free.app' 
     ]
   }
 })
