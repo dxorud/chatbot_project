@@ -17,7 +17,7 @@
 .signup-container input,
 .signup-container button {
   width: 100%;
-  box-sizing: border-box; /* ✅ 추가 */
+  box-sizing: border-box; 
 }
 
 .signup-container input {
