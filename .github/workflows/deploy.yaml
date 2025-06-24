@@ -6,32 +6,34 @@ on:
       - main
 
 env:
-  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-  DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
-
-  BACKEND_IMAGE: yourdockerhubid/chatbot-backend
-  FRONTEND_IMAGE: yourdockerhubid/chatbot-frontend
+  BACKEND_IMAGE: tjdusdl/backend-app
+  FRONTEND_IMAGE: tjdusdl/react-app
 
   EC2_HOST: ${{ secrets.HOST }}
   EC2_USERNAME: ${{ secrets.USERNAME }}
   EC2_KEY: ${{ secrets.KEY }}
-  SSH_PORT: 22
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Docker Hub 로그인
+      - name: Generate .env for Backend
+        run: echo "${{ secrets.BACKEND_ENV }}" > ./backend/.env
+
+      - name: Generate .env for Frontend
+        run: echo "${{ secrets.FRONTEND_ENV }}" > ./frontend/.env
+
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_HUB_TOKEN }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: 백엔드 이미지 빌드 및 푸시
+      - name: Build and Push Backend Image
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -39,7 +41,7 @@ jobs:
           push: true
           tags: ${{ env.BACKEND_IMAGE }}:latest
 
-      - name: 프론트엔드 이미지 빌드 및 푸시
+      - name: Build and Push Frontend Image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -47,23 +49,32 @@ jobs:
           push: true
           tags: ${{ env.FRONTEND_IMAGE }}:latest
 
-      - name: EC2에 배포
+      - name: Deploy to EC2 and Run Containers
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.EC2_HOST }}
           username: ${{ env.EC2_USERNAME }}
           key: ${{ env.EC2_KEY }}
-          port: ${{ env.SSH_PORT }}
+          port: ${{ secrets.PORT }}
           script: |
+            echo "Pulling latest Docker images..."
             docker pull ${{ env.BACKEND_IMAGE }}:latest
             docker pull ${{ env.FRONTEND_IMAGE }}:latest
 
-            docker stop chatbot_backend || true
-            docker rm chatbot_backend || true
-            docker run -d --restart always --name chatbot_backend -p 5000:5000 ${{ env.BACKEND_IMAGE }}:latest
+            echo "Stopping and removing old containers..."
+            docker rm -f backend || true
+            docker rm -f frontend || true
 
-            docker stop chatbot_frontend || true
-            docker rm chatbot_frontend || true
-            docker run -d --restart always --name chatbot_frontend -p 5173:5173 ${{ env.FRONTEND_IMAGE }}:latest
+            echo "Running backend container on port 5000..."
+            docker run -d \
+              --name backend \
+              --restart unless-stopped \
+              -p 5000:5000 \
+              ${{ env.BACKEND_IMAGE }}:latest
 
-            docker system prune -f
+            echo "Running frontend container on port 5173..."
+            docker run -d \
+              --name frontend \
+              --restart unless-stopped \
+              -p 5173:5173 \
+              ${{ env.FRONTEND_IMAGE }}:latest
