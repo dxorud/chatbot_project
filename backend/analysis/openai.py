@@ -1,12 +1,19 @@
-from openai import OpenAI
 import os
 from dotenv import load_dotenv
+from openai import OpenAI
 
-# ✅ .env 자동 로드
+# ✅ .env 환경 변수 로드
 load_dotenv()
 
+# ✅ OpenAI API 키 확인
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# ❗ 예외 처리: 키가 설정되지 않았을 경우 오류 출력
+if not OPENAI_API_KEY:
+    raise ValueError("OPENAI_API_KEY가 .env 파일에 설정되어 있지 않습니다.")
+
 # ✅ OpenAI 클라이언트 초기화
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # 🔍 AI 소비 분석 요약 함수
 def analyze_data(real_name: str, data: dict, year: str = "", month: str = "", mode: str = "month") -> str:
@@ -17,6 +24,7 @@ def analyze_data(real_name: str, data: dict, year: str = "", month: str = "", mo
     else:
         date_info = "최근 한 달간"
 
+    # 🧠 분석 요청 프롬프트 구성
     content = f"""
     다음은 {real_name} 사용자의 {date_info} 소비 기록입니다.
 

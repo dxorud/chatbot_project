@@ -7,8 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-COPY .env .env
-
 EXPOSE 5000
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
