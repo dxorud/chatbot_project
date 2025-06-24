@@ -1,4 +1,4 @@
-name: Deploy FastAPI + Vite App to EC2
+name: Deploy Fullstack App to EC2
 
 on:
   push:
@@ -9,8 +9,8 @@ env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-  BACKEND_IMAGE_NAME: yourdockerhubid/chatbot-backend
-  FRONTEND_IMAGE_NAME: yourdockerhubid/chatbot-frontend
+  BACKEND_IMAGE: yourdockerhubid/chatbot-backend
+  FRONTEND_IMAGE: yourdockerhubid/chatbot-frontend
 
   EC2_HOST: ${{ secrets.HOST }}
   EC2_USERNAME: ${{ secrets.USERNAME }}
@@ -22,32 +22,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Login to Docker Hub
+      - name: Docker Hub 로그인
         uses: docker/login-action@v3
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_HUB_TOKEN }}
 
-      - name: Build and Push Backend
+      - name: 백엔드 이미지 빌드 및 푸시
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ env.BACKEND_IMAGE_NAME }}:latest
+          tags: ${{ env.BACKEND_IMAGE }}:latest
 
-      - name: Build and Push Frontend
+      - name: 프론트엔드 이미지 빌드 및 푸시
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ env.FRONTEND_IMAGE_NAME }}:latest
+          tags: ${{ env.FRONTEND_IMAGE }}:latest
 
-      - name: Deploy to EC2
+      - name: EC2에 배포
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.EC2_HOST }}
@@ -55,17 +55,15 @@ jobs:
           key: ${{ env.EC2_KEY }}
           port: ${{ env.SSH_PORT }}
           script: |
-            echo "--- Backend ---"
-            docker pull ${{ env.BACKEND_IMAGE_NAME }}:latest
-            docker stop chatbot-backend || true
-            docker rm chatbot-backend || true
-            docker run -d --restart always --name chatbot-backend -p 5000:5000 ${{ env.BACKEND_IMAGE_NAME }}:latest
+            docker pull ${{ env.BACKEND_IMAGE }}:latest
+            docker pull ${{ env.FRONTEND_IMAGE }}:latest
 
-            echo "--- Frontend ---"
-            docker pull ${{ env.FRONTEND_IMAGE_NAME }}:latest
-            docker stop chatbot-frontend || true
-            docker rm chatbot-frontend || true
-            docker run -d --restart always --name chatbot-frontend -p 5173:5173 ${{ env.FRONTEND_IMAGE_NAME }}:latest
+            docker stop chatbot_backend || true
+            docker rm chatbot_backend || true
+            docker run -d --restart always --name chatbot_backend -p 5000:5000 ${{ env.BACKEND_IMAGE }}:latest
 
-            echo "--- Docker Cleanup ---"
+            docker stop chatbot_frontend || true
+            docker rm chatbot_frontend || true
+            docker run -d --restart always --name chatbot_frontend -p 5173:5173 ${{ env.FRONTEND_IMAGE }}:latest
+
             docker system prune -f
