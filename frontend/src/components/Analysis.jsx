@@ -3,7 +3,8 @@ import axios from 'axios';
 import Dropdown from './Dropdown';
 import {
   PieChart, Pie, Cell, Tooltip, Legend,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList, ResponsiveContainer
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList, ResponsiveContainer,
+  LineChart, Line
 } from 'recharts';
 import './Analysis.css';
 
@@ -44,7 +45,7 @@ export default function Analysis() {
   const fetchMonthAnalysis = async () => {
     try {
       setError('');
-      const url = `http://13.239.184.39:5000/analysis/${username}?year=${year}&month=${month}&mode=month`;
+      const url = `http://3.104.128.7:5000/analysis/${username}?year=${year}&month=${month}&mode=month`;
       const res = await axios.get(url);
       setData(res.data.data);
       setSummary(res.data.ai_summary);
@@ -57,7 +58,7 @@ export default function Analysis() {
   const handleRecent7Analysis = async () => {
     try {
       setError('');
-      const url = `http://13.239.184.39:5000/analysis/${username}?mode=recent&today=2025-06-26`;
+      const url = `http://3.104.128.7:5000/analysis/${username}?mode=recent&today=2025-06-26`;
       const res = await axios.get(url);
       setData(res.data.data);
       setSummary(res.data.ai_summary);
@@ -75,9 +76,23 @@ export default function Analysis() {
     ? Object.entries(data.emotions).map(([name, value]) => ({ name, value }))
     : [];
 
+  const getIcon = (name) => {
+    const icons = {
+      '점심식사': '🍱',
+      '카페': '☕',
+      '패션': '🛍️',
+      '스트레스 쇼핑': '🛒',
+      '업무비품': '📎',
+      '월급': '💰',
+      '스트레스': '😣',
+      '자기보상': '🎁'
+    };
+    return icons[name] || '💡';
+  };
+
   return (
     <div className="analysis-container">
-      <h2>소비 분석 리포트</h2>
+      <h2>📊 나의 소비 패턴은 어떻게 이루어졌을까?</h2>
 
       <div className="analysis-control">
         <Dropdown options={years} selected={year} setSelected={setYear} label="년" />
@@ -92,13 +107,12 @@ export default function Analysis() {
         <p>분석 데이터를 불러오는 중입니다...</p>
       ) : data ? (
         <>
-          {/* 카드 정렬 */}
           <div className="analysis-card-row">
             <div className="analysis-card">
               <h3>💳 주요 지출 항목</h3>
               <ul>
                 {expenseData.map(item => (
-                  <li key={item.name}>{item.name}: {item.value.toLocaleString()}원</li>
+                  <li key={item.name}><span>{getIcon(item.name)}</span> {item.name}: {item.value.toLocaleString()}원</li>
                 ))}
               </ul>
             </div>
@@ -107,7 +121,7 @@ export default function Analysis() {
               {emotionData.length > 0 ? (
                 <ul>
                   {emotionData.map(item => (
-                    <li key={item.name}>{item.name}: {item.value}%</li>
+                    <li key={item.name}><span>{getIcon(item.name)}</span> {item.name}: {item.value}%</li>
                   ))}
                 </ul>
               ) : (
@@ -116,13 +130,6 @@ export default function Analysis() {
             </div>
           </div>
 
-          {/* AI 분석 */}
-          <div className="ai-summary-card">
-            <h3>✨ AI 분석 인사이트</h3>
-            <p>{summary}</p>
-          </div>
-
-          {/* 그래프 영역 */}
           <div className="graph-row">
             <div className="graph-box">
               <h3>📊 지출 항목 그래프</h3>
@@ -130,18 +137,13 @@ export default function Analysis() {
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart
                     data={expenseData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis tickFormatter={(value) => value.toLocaleString()} />
                     <Tooltip formatter={(value) => `${value.toLocaleString()}원`} />
                     <Bar dataKey="value" fill="#8884d8">
-                      <LabelList
-                        dataKey="value"
-                        position="top"
-                        formatter={(val) => val.toLocaleString()}
-                      />
+                      <LabelList dataKey="value" position="top" />
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -162,8 +164,7 @@ export default function Analysis() {
                       cx="50%"
                       cy="50%"
                       outerRadius={100}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
-                    >
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}>
                       {emotionData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
@@ -175,6 +176,13 @@ export default function Analysis() {
               ) : (
                 <p>감정 데이터가 없습니다.</p>
               )}
+            </div>
+          </div>
+
+          <div className="graph-row">
+            <div className="graph-box ai-summary-card">
+              <h3>✨ AI 분석 인사이트</h3>
+              <p>{summary}</p>
             </div>
           </div>
         </>

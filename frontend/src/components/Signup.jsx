@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './Signup.css'; // ✅ CSS 파일 분리
 
 export default function Signup() {
   const [username, setUsername] = useState('');
-  const [name, setName] = useState('');         // 이름 상태 추가
-  const [email, setEmail] = useState('');       // 이메일 상태 추가
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const navigate = useNavigate(); // ✅ 페이지 이동을 위한 훅
 
   const handleSignup = async () => {
     if (!username || !name || !email || !password) {
@@ -13,16 +17,32 @@ export default function Signup() {
       return;
     }
 
+    if (password.length < 6) {
+      alert('비밀번호는 최소 6자 이상이어야 합니다.');
+      return;
+    }
+
     try {
-      await axios.post('http://13.239.184.39:5000/auth/signup', {
+      await axios.post('http://3.104.128.7:5000/auth/signup', {
         username,
         name,
         email,
         password,
       });
-      alert('회원가입 성공!');
-      // 필요시 초기화나 페이지 이동 처리
+
+      alert(`${name}님, 회원가입이 완료되었습니다!`);
+      
+      // ✅ 입력 필드 초기화
+      setUsername('');
+      setName('');
+      setEmail('');
+      setPassword('');
+
+      // ✅ 로그인 페이지로 이동
+      navigate('/login');
+
     } catch (error) {
+      console.error('❌ 회원가입 오류:', error);
       alert('회원가입 실패: ' + (error.response?.data?.detail || '서버 오류'));
     }
   };
@@ -33,24 +53,28 @@ export default function Signup() {
       <input
         type="text"
         placeholder="아이디"
+        value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
       <input
         type="text"
         placeholder="이름"
+        value={name}
         onChange={(e) => setName(e.target.value)}
       />
       <input
         type="email"
         placeholder="이메일"
+        value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
       <input
         type="password"
         placeholder="비밀번호"
+        value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={handleSignup}>회원가입</button>
+      <button onClick={handleSignup}>가입하기</button>
     </div>
   );
 }

@@ -8,7 +8,6 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
   const [userName, setUserName] = useState('');
 
   useEffect(() => {
-    // ✅ 로그인된 사용자 이름 가져오기
     const name = localStorage.getItem('name');
     if (name) {
       setUserName(name);
@@ -20,8 +19,8 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('username'); // ✅ 같이 삭제
-    localStorage.removeItem('name');     // ✅ 같이 삭제
+    localStorage.removeItem('username'); 
+    localStorage.removeItem('name');     
     setIsLoggedIn(false);
     navigate('/');
   };
@@ -41,7 +40,13 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
       </div>
 
       <div className="navbar-right">
-        <button className="fetch-btn">금융 데이터 가져오기</button>
+        <a
+          href="https://preferably-united-wren.ngrok-free.app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <button className="fetch-btn">금융 데이터 가져오기</button>
+        </a>
         {isLoggedIn ? (
           <>
             <span className="welcome-text">{userName} 님</span>

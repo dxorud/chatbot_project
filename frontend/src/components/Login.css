@@ -14,8 +14,13 @@
   margin-bottom: 24px;
 }
 
-.login-container input {
+.login-container input,
+.login-container button {
   width: 100%;
+  box-sizing: border-box; /* ✅ 필수 */
+}
+
+.login-container input {
   padding: 12px;
   margin-bottom: 16px;
   border: 1px solid #d3c0f3;
@@ -24,7 +29,6 @@
 }
 
 .login-container button {
-  width: 100%;
   background-color: #8a2be2;
   color: white;
   border: none;

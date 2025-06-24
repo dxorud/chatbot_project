@@ -3,11 +3,11 @@ import './Home.css';
 import chatbotImage from '../assets/chatbot.png'; 
 
 // 아이콘 예시 (직접 파일 import하거나 SVG 사용 가능)
-import icon1 from '../assets/icon-analysis.png';
-import icon2 from '../assets/icon-stats.png';
-import icon3 from '../assets/icon-ai.png';
-import icon4 from '../assets/icon-diary.png';
-import icon5 from '../assets/icon-habit.png';
+import icon1 from '../assets/1.png';
+import icon2 from '../assets/2.png';
+import icon3 from '../assets/3.png';
+import icon4 from '../assets/4.png';
+import icon5 from '../assets/5.png';
 
 export default function Home() {
   const cardRef = useRef(null);
