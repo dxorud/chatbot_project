@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
 from login.router import router as login_router
 from analysis.routes import router as analysis_router
+from dotenv import load_dotenv
+load_dotenv()
+
 
 app = FastAPI()
 

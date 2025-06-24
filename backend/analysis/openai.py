@@ -1,19 +1,15 @@
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from pathlib import Path
 
-# 📌 .env 로드
-BASE_DIR = Path(__file__).resolve().parent.parent
-env_path = BASE_DIR / ".env"
-load_dotenv(dotenv_path=env_path)
+# ✅ .env 자동 로드
+load_dotenv()
 
 # ✅ OpenAI 클라이언트 초기화
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # 🔍 AI 소비 분석 요약 함수
 def analyze_data(real_name: str, data: dict, year: str = "", month: str = "", mode: str = "month") -> str:
-    # ⏱️ 날짜 정보 문구 설정
     if mode == "recent":
         date_info = "최근 7일간"
     elif year and month:
@@ -21,7 +17,6 @@ def analyze_data(real_name: str, data: dict, year: str = "", month: str = "", mo
     else:
         date_info = "최근 한 달간"
 
-    # 🧠 분석 요청 프롬프트
     content = f"""
     다음은 {real_name} 사용자의 {date_info} 소비 기록입니다.
 
@@ -35,7 +30,6 @@ def analyze_data(real_name: str, data: dict, year: str = "", month: str = "", mo
     """
 
     try:
-        # 🗣️ OpenAI API 호출
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -45,7 +39,7 @@ def analyze_data(real_name: str, data: dict, year: str = "", month: str = "", mo
         )
 
         result = response.choices[0].message.content.strip()
-        print(f"✅ AI 소비 분석 결과:\n{result}")  # 🔎 디버깅 로그
+        print(f"✅ AI 소비 분석 결과:\n{result}")
         return result
 
     except Exception as e:
