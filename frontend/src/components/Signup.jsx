@@ -23,7 +23,7 @@ export default function Signup() {
     }
 
     try {
-      await axios.post('http://3.104.128.7:5000/auth/signup', {
+      await axios.post('https://advanced-closely-garfish.ngrok-free.app/auth/signup', {
         username,
         name,
         email,

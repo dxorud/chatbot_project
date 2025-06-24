@@ -15,7 +15,7 @@ export default function Login({ setIsLoggedIn }) {
     }
 
     try {
-      const response = await axios.post('http://3.104.128.7:5000/auth/login', {
+      const response = await axios.post('https://advanced-closely-garfish.ngrok-free.app/auth/login', {
         username,
         password,
       });

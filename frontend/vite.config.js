@@ -4,9 +4,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true,         
-    port: 5173,         
-    strictPort: true,  
-    cors: true          
+    host: true,
+    port: 5173,
+    strictPort: true,
+    cors: true,
+    allowedHosts: [
+      'perfect-valued-sculpin.ngrok-free.app' 
+    ]
   }
 })

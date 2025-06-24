@@ -1,18 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
-from login.router import router as login_router            
-from analysis.routes import router as analysis_router    
+from login.router import router as login_router
+from analysis.routes import router as analysis_router
 
 app = FastAPI()
 
-# ✅ CORS 설정
+# ✅ CORS 설정: 모든 origin 허용 (개발용)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",       # 로컬 개발용
-        "http://3.104.128.7:5173"      # 배포 서버용
-    ],
+    allow_origins=["*"],           # 모든 도메인에서 접근 허용
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

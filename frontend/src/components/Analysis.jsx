@@ -45,7 +45,7 @@ export default function Analysis() {
   const fetchMonthAnalysis = async () => {
     try {
       setError('');
-      const url = `http://3.104.128.7:5000/analysis/${username}?year=${year}&month=${month}&mode=month`;
+      const url = `https://advanced-closely-garfish.ngrok-free.app/analysis/${username}?year=${year}&month=${month}&mode=month`;
       const res = await axios.get(url);
       setData(res.data.data);
       setSummary(res.data.ai_summary);
@@ -58,7 +58,7 @@ export default function Analysis() {
   const handleRecent7Analysis = async () => {
     try {
       setError('');
-      const url = `http://3.104.128.7:5000/analysis/${username}?mode=recent&today=2025-06-26`;
+      const url = `https://advanced-closely-garfish.ngrok-free.app/analysis/${username}?mode=recent&today=2025-06-26`;
       const res = await axios.get(url);
       setData(res.data.data);
       setSummary(res.data.ai_summary);

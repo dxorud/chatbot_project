@@ -34,8 +34,9 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
         <div className="navbar-center">
           <Link to="/">Home</Link>
           <Link to="/analysis">Analysis</Link>
-          <Link to="/chat">Chat</Link>
-          <Link to="/diary">Diary</Link>
+          <a href="https://eunbie.site/chat" target="_blank" rel="noopener noreferrer">Chat</a>
+          <a href="https://eunbie.site/diary" target="_blank" rel="noopener noreferrer">Diary</a>
+          <a href="https://eunbie.site/budgetA" target="_blank" rel="noopener noreferrer">Budget</a>
         </div>
       </div>
 
