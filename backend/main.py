@@ -15,7 +15,7 @@ app = FastAPI()
 # ✅ CORS 설정 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://advanced-closely-garfish.ngrok-free.app"],
+    allow_origins=["https://bass-worthy-actively.ngrok-free.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
