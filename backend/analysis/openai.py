@@ -1,32 +1,40 @@
 import os
-from dotenv import load_dotenv # 다른 .env 변수를 위해 이 줄은 유지합니다.
+from dotenv import load_dotenv
 from openai import OpenAI
 
-# 먼저 os.environ (Docker의 -e 옵션으로 전달된 환경 변수)에서 API 키를 가져옵니다.
+# 🔐 환경 변수 로드
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# 만약 os.environ에 API 키가 없다면, 그 다음에 .env 파일을 로드하여 시도합니다.
-# 이 조건은 Docker -e 옵션을 사용하지 않을 때 .env 파일에서 키를 찾을 때 유용합니다.
 if not OPENAI_API_KEY:
-    load_dotenv() # .env 파일을 로드합니다.
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") # .env 파일에서 다시 가져옵니다.
+    load_dotenv()
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# 최종적으로 API 키가 설정되었는지 확인
 if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY 환경 변수가 설정되지 않았습니다. GitHub Secrets, Dockerfile, 또는 .env 파일 설정을 확인하세요.")
+    raise ValueError("OPENAI_API_KEY 환경 변수가 설정되지 않았습니다. .env 또는 Docker 설정을 확인하세요.")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# 🔍 AI 소비 분석 요약 함수
-def analyze_data(real_name: str, data: dict, year: str = "", month: str = "", mode: str = "month") -> str:
+# ✅ AI 소비 분석 요약 함수
+def analyze_data(
+    real_name: str,
+    data: dict,
+    mode: str = "recent",
+    start_date: str = "",
+    end_date: str = ""
+) -> str:
+    # ✅ 날짜 설명 구성
     if mode == "recent":
         date_info = "최근 7일간"
-    elif year and month:
-        date_info = f"{year}년 {month}월"
+    elif mode == "range" and start_date and end_date:
+        date_info = f"{start_date}부터 {end_date}까지"
     else:
-        date_info = "최근 한 달간"
+        date_info = "최근 기간"
 
-    # 🧠 분석 요청 프롬프트 구성
+    # ✅ 빈 데이터 처리
+    if not data.get("expenses") and not data.get("emotions"):
+        return "분석할 소비 기록이 없습니다."
+
+    # 🧠 프롬프트 구성
     content = f"""
     다음은 {real_name} 사용자의 {date_info} 소비 기록입니다.
 

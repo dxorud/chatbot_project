@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Dropdown from './Dropdown';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import {
   PieChart, Pie, Cell, Tooltip, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList, ResponsiveContainer,
-  LineChart, Line
 } from 'recharts';
 import './Analysis.css';
 
@@ -14,13 +14,9 @@ export default function Analysis() {
   const [username, setUsername] = useState('');
   const [data, setData] = useState(null);
   const [summary, setSummary] = useState('');
-  const [year, setYear] = useState('2025');
-  const [month, setMonth] = useState('06');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [error, setError] = useState('');
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: currentYear - 2010 + 1 }, (_, i) => (2010 + i).toString());
-  const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -36,22 +32,23 @@ export default function Analysis() {
     }
   }, []);
 
-  useEffect(() => {
-    if (username) {
-      fetchMonthAnalysis();
+  const handleRangeAnalysis = async () => {
+    if (!startDate || !endDate) {
+      setError('시작일과 종료일을 모두 선택해주세요.');
+      return;
     }
-  }, [username, year, month]);
 
-  const fetchMonthAnalysis = async () => {
     try {
       setError('');
-      const url = `https://advanced-closely-garfish.ngrok-free.app/analysis/${username}?year=${year}&month=${month}&mode=month`;
+      const start = startDate.toISOString().split("T")[0];
+      const end = endDate.toISOString().split("T")[0];
+      const url = `https://advanced-closely-garfish.ngrok-free.app/analysis/${username}?start=${start}&end=${end}&mode=range`;
       const res = await axios.get(url);
       setData(res.data.data);
       setSummary(res.data.ai_summary);
     } catch (err) {
-      console.error('월간 데이터 불러오기 실패:', err);
-      setError('해당 기간의 데이터를 찾을 수 없습니다.');
+      console.error('범위 분석 실패:', err);
+      setError('해당 범위의 데이터를 찾을 수 없습니다.');
     }
   };
 
@@ -95,9 +92,23 @@ export default function Analysis() {
       <h2>📊 나의 소비 패턴은 어떻게 이루어졌을까?</h2>
 
       <div className="analysis-control">
-        <Dropdown options={years} selected={year} setSelected={setYear} label="년" />
-        <Dropdown options={months} selected={month} setSelected={setMonth} label="월" />
-        <button onClick={fetchMonthAnalysis}>월간 분석</button>
+        <label>시작일:</label>
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          placeholderText="날짜를 선택해주세요"
+          dateFormat="yyyy-MM-dd"
+          className="datepicker-input"
+        />
+        <label>종료일:</label>
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          placeholderText="날짜를 선택해주세요"
+          dateFormat="yyyy-MM-dd"
+          className="datepicker-input"
+        />
+        <button onClick={handleRangeAnalysis}>범위 분석</button>
         <button onClick={handleRecent7Analysis}>최근 7일 분석</button>
       </div>
 

@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env_path = BASE_DIR / ".env"
 load_dotenv(dotenv_path=env_path)
 
-# 🔐 환경변수 기반 설정
+# 🔐 환경변수 기반 S3 설정
 s3 = boto3.client(
     's3',
     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
@@ -22,51 +22,51 @@ s3 = boto3.client(
 BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 PREFIX = "project/"
 
-def get_user_data(real_name: str, year: str = None, month: str = None, mode: str = None, today: datetime = None):
+# ✅ 날짜 겹침 여부 확인
+def date_ranges_overlap(start1, end1, start2, end2):
+    return end1 >= start2 and end1 >= start1 and end2 >= start1
+
+def get_user_data(real_name: str, mode: str, today: datetime = None, start_date: str = None, end_date: str = None):
     try:
         response = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix=PREFIX)
         if 'Contents' not in response:
             return None
 
-        all_files = [obj['Key'] for obj in response['Contents'] if obj['Key'].endswith('.json')]
+        all_files = [obj['Key'] for obj in response['Contents'] if obj['Key'].endswith('.json') and real_name in obj['Key']]
         selected_keys = []
 
-        print(f"✅ 사용자 이름: {real_name}")
-        print(f"📅 year: {year}, month: {month}, mode: {mode}")
-        print(f"📂 전체 파일 개수: {len(all_files)}")
-
+        # ✅ 날짜 기준 정의
         if mode == "recent":
-            # 📌 기준 날짜 설정 (기본: 오늘)
             if today is None:
                 today = datetime.today()
-
-            start_date = today - timedelta(days=6)
-            end_date = today
-
-            # 최근 모드는 모든 사용자 파일을 전부 가져와 내부에서 날짜 필터링
-            selected_keys = [key for key in all_files if real_name in key]
-
-        elif year and month:
-            target_ym = f"{year}{month.zfill(2)}"
-            for key in all_files:
-                if real_name not in key:
-                    continue
-                match = re.search(r'_(\d{8})~(\d{8})\.json', key)
-                if match:
-                    start_date_str, end_date_str = match.groups()
-                    if start_date_str[:6] <= target_ym <= end_date_str[:6]:
-                        selected_keys.append(key)
-
+            start_dt = today - timedelta(days=6)
+            end_dt = today
+        elif mode == "range":
+            if not start_date or not end_date:
+                return None
+            try:
+                start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+                end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+            except ValueError:
+                return None
         else:
-            user_files = [k for k in all_files if real_name in k]
-            if user_files:
-                selected_keys = [sorted(user_files)[-1]]
+            return None
 
-        print(f"🎯 선택된 파일 키: {selected_keys}")
+        # ✅ 파일명에 포함된 날짜 범위 기준으로 필터링
+        for key in all_files:
+            match = re.search(r'_(\d{8})~(\d{8})\.json', key)
+            if match:
+                file_start = datetime.strptime(match.group(1), "%Y%m%d")
+                file_end = datetime.strptime(match.group(2), "%Y%m%d")
+                if date_ranges_overlap(file_start, file_end, start_dt, end_dt):
+                    selected_keys.append(key)
 
         if not selected_keys:
             return None
 
+        print(f"📁 선택된 파일 수: {len(selected_keys)}")
+
+        # ✅ 데이터 병합
         merged_data = {
             "expenses": {},
             "emotions": {}
@@ -74,32 +74,24 @@ def get_user_data(real_name: str, year: str = None, month: str = None, mode: str
 
         for key in selected_keys:
             obj = s3.get_object(Bucket=BUCKET_NAME, Key=key)
-            file_content = obj['Body'].read().decode('utf-8')
-            file_data = json.loads(file_content)
+            content = obj['Body'].read().decode('utf-8')
+            file_data = json.loads(content)
 
             if not isinstance(file_data, list):
-                print(f"⚠️ 예상치 못한 구조: {type(file_data)}. 리스트 형식만 처리.")
                 continue
 
             for day in file_data:
                 date_str = day.get("날짜")
                 if not date_str:
                     continue
-
                 try:
-                    date = datetime.strptime(date_str, "%Y-%m-%d")
+                    record_date = datetime.strptime(date_str, "%Y-%m-%d")
                 except:
                     continue
 
-                # ✅ 최근 7일 분석 모드일 경우
-                if mode == "recent" and today:
-                    if not (0 <= (today - date).days <= 6):
-                        continue
-
-                # ✅ 월간 분석 모드일 경우
-                elif mode != "recent" and year and month:
-                    if date.year != int(year) or date.month != int(month):
-                        continue
+                # ✅ 범위 내 데이터만 포함
+                if not (start_dt <= record_date <= end_dt):
+                    continue
 
                 for item in day.get("소비목록", []):
                     category = item.get("항목")
@@ -111,11 +103,11 @@ def get_user_data(real_name: str, year: str = None, month: str = None, mode: str
                     if emotion:
                         merged_data["emotions"][emotion] = merged_data["emotions"].get(emotion, 0) + 1
 
-        # 감정 비율 계산
-        total_emotions = sum(merged_data["emotions"].values())
-        if total_emotions > 0:
+        # ✅ 감정 비율 계산
+        total = sum(merged_data["emotions"].values())
+        if total > 0:
             for k in merged_data["emotions"]:
-                merged_data["emotions"][k] = round(merged_data["emotions"][k] / total_emotions * 100, 1)
+                merged_data["emotions"][k] = round(merged_data["emotions"][k] / total * 100, 1)
         else:
             merged_data["emotions"] = {}
 

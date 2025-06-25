@@ -25,6 +25,34 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
     navigate('/');
   };
 
+  // 사용자 정보를 URL 파라미터로 전달하는 함수들
+  const handleChatClick = () => {
+    const username = localStorage.getItem('username') || localStorage.getItem('name');
+    if (username && isLoggedIn) {
+      window.open(`https://eunbie.site/chat?user=${encodeURIComponent(username)}`, '_blank');
+    } else {
+      alert('먼저 로그인해주세요.');
+    }
+  };
+
+  const handleDiaryClick = () => {
+    const username = localStorage.getItem('username') || localStorage.getItem('name');
+    if (username && isLoggedIn) {
+      window.open(`https://eunbie.site/diary?user=${encodeURIComponent(username)}`, '_blank');
+    } else {
+      alert('먼저 로그인해주세요.');
+    }
+  };
+
+  const handleBudgetClick = () => {
+    const username = localStorage.getItem('username') || localStorage.getItem('name');
+    if (username && isLoggedIn) {
+      window.open(`https://eunbie.site/budgetA?user=${encodeURIComponent(username)}`, '_blank');
+    } else {
+      alert('먼저 로그인해주세요.');
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-left-group">
@@ -34,12 +62,22 @@ export default function Navbar({ isLoggedIn, setIsLoggedIn }) {
         <div className="navbar-center">
           <Link to="/">Home</Link>
           <Link to="/analysis">Analysis</Link>
-          <a href="https://eunbie.site/chat" target="_blank" rel="noopener noreferrer">Chat</a>
-          <a href="https://eunbie.site/diary" target="_blank" rel="noopener noreferrer">Diary</a>
-          <a href="https://eunbie.site/budgetA" target="_blank" rel="noopener noreferrer">Budget</a>
+          
+          {/* 기존 a 태그를 button으로 변경하여 사용자 정보 전달 */}
+          <button onClick={handleChatClick} className="nav-button">
+            Chat
+          </button>
+          
+          <button onClick={handleDiaryClick} className="nav-button">
+            Diary
+          </button>
+          
+          <button onClick={handleBudgetClick} className="nav-button">
+            Budget
+          </button>
         </div>
       </div>
-
+      
       <div className="navbar-right">
         <a
           href="https://preferably-united-wren.ngrok-free.app"

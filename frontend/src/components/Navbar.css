@@ -99,3 +99,21 @@
   font-size: 1rem;
   margin-right: 4px;  
 }
+
+.nav-button {
+  background: none !important;
+  border: none !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  color: #4b0082 !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  font-family: 'Noto Sans KR', sans-serif !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transition: color 0.3s ease !important;
+}
+
+.nav-button:hover {
+  color: #8a2be2 !important;
+}

@@ -1,5 +1,4 @@
-/* Analysis.css */
-
+/* ✅ 전체 레이아웃 */
 .analysis-container {
   max-width: 1200px;
   margin: 40px auto;
@@ -16,6 +15,7 @@
   text-align: left;
 }
 
+/* ✅ 상단 컨트롤 */
 .analysis-control {
   display: flex;
   align-items: center;
@@ -39,6 +39,7 @@
   background-color: #5e35b1;
 }
 
+/* ✅ 카드 UI */
 .analysis-card-row {
   display: flex;
   gap: 20px;
@@ -85,6 +86,7 @@
   min-height: 80px;
 }
 
+/* ✅ 그래프 */
 .graph-row {
   display: flex;
   gap: 20px;
@@ -112,4 +114,77 @@
   line-height: 1.5;
   font-size: 1rem;
   color: #333;
+}
+
+/* ✅ 날짜 입력창 */
+.datepicker-input {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 180px;
+  text-align: center;
+}
+
+/* ✅ DatePicker 달력 */
+.react-datepicker {
+  font-size: 13px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #ddd !important;
+}
+
+/* ✅ 헤더 (가운데 정렬 + 포지션 기준) */
+.react-datepicker__header {
+  background-color: #fff !important;
+  padding: 8px 0 !important;
+  border-bottom: 1px solid #eee !important;
+  position: relative !important;
+  text-align: center !important;
+}
+
+/* ✅ 월/연도 텍스트 (중앙정렬) */
+.react-datepicker__current-month {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #4b0082 !important;
+  display: inline-block !important;
+  position: relative !important;
+  z-index: 1;
+}
+
+/* ✅ 화살표 버튼 */
+.react-datepicker__navigation {
+  top: 8px !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.react-datepicker__navigation--previous {
+  left: 10px !important;
+}
+
+.react-datepicker__navigation--next {
+  right: 10px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #7c4dff !important;
+  top: 6px !important;
+}
+
+/* ✅ 날짜 스타일 */
+.react-datepicker__day {
+  font-size: 13px !important;
+}
+
+.react-datepicker__day--selected {
+  background-color: #7c4dff !important;
+  color: white !important;
+  border-radius: 50% !important;
+}
+
+/* ✅ 다음달/지난달 날짜 숨김 */
+.react-datepicker__day--outside-month {
+  visibility: hidden !important;
 }
