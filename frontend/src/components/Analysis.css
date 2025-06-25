@@ -143,7 +143,6 @@
   text-align: center !important;
 }
 
-/* ✅ 월/연도 텍스트 (중앙정렬) */
 .react-datepicker__current-month {
   font-size: 13px !important;
   font-weight: 600 !important;
