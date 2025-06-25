@@ -2,9 +2,7 @@ version: "3.8"
 
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: dxorud/chatbot_backend:latest
     ports:
       - "5000:5000"
     env_file:
@@ -12,9 +10,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: dxorud/chatbot_frontend:latest
     ports:
       - "5173:5173"
     env_file:

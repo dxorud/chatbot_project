@@ -21,47 +21,38 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # ✅ 루트에 .env 생성 후 backend로 복사
+      # ✅ .env 파일 생성 및 저장
       - name: Generate .env for Backend
         run: |
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
-          echo "ENV=production" >> .env
-          echo "BACKEND_DOMAIN=https://advanced-closely-garfish.ngrok-free.app" >> .env
-          cp .env ./backend/.env
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > ./backend/.env
+          echo "ENV=production" >> ./backend/.env
+          echo "BACKEND_DOMAIN=https://advanced-closely-garfish.ngrok-free.app" >> ./backend/.env
 
       - name: Generate .env for Frontend
         run: |
           echo "VITE_API_URL=https://bass-worthy-actively.ngrok-free.app" > ./frontend/.env
 
-      # ✅ ngrok_b.yaml (Backend) - v3 형식
-      - name: Generate ngrok_b.yaml for Backend
+      # ✅ ngrok 설정 파일 생성
+      - name: Generate ngrok config files
         run: |
-          echo "version: 3" > ./backend/ngrok_b.yaml
-          echo "agent:" >> ./backend/ngrok_b.yaml
-          echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_BACKEND }}" >> ./backend/ngrok_b.yaml
-          echo "tunnels:" >> ./backend/ngrok_b.yaml
-          echo "  backend:" >> ./backend/ngrok_b.yaml
-          echo "    proto: http" >> ./backend/ngrok_b.yaml
-          echo "    addr: 5000" >> ./backend/ngrok_b.yaml
-          echo "    hostname: advanced-closely-garfish.ngrok-free.app" >> ./backend/ngrok_b.yaml
+          mkdir -p ./ngrok
+          echo "version: 3" > ./ngrok/ngrok_b.yaml
+          echo "agent:" >> ./ngrok/ngrok_b.yaml
+          echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_BACKEND }}" >> ./ngrok/ngrok_b.yaml
+          echo "tunnels:" >> ./ngrok/ngrok_b.yaml
+          echo "  backend:" >> ./ngrok/ngrok_b.yaml
+          echo "    proto: http" >> ./ngrok/ngrok_b.yaml
+          echo "    addr: 5000" >> ./ngrok/ngrok_b.yaml
+          echo "    hostname: advanced-closely-garfish.ngrok-free.app" >> ./ngrok/ngrok_b.yaml
 
-      # ✅ ngrok_a.yaml (Frontend) - v3 형식
-      - name: Generate ngrok_a.yaml for Frontend
-        run: |
-          echo "version: 3" > ./frontend/ngrok_a.yaml
-          echo "agent:" >> ./frontend/ngrok_a.yaml
-          echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_FRONTEND }}" >> ./frontend/ngrok_a.yaml
-          echo "tunnels:" >> ./frontend/ngrok_a.yaml
-          echo "  frontend:" >> ./frontend/ngrok_a.yaml
-          echo "    proto: http" >> ./frontend/ngrok_a.yaml
-          echo "    addr: 5173" >> ./frontend/ngrok_a.yaml
-          echo "    hostname: bass-worthy-actively.ngrok-free.app" >> ./frontend/ngrok_a.yaml
-
-      # ✅ 설정 파일 확인
-      - name: Ensure ngrok config files exist and are not empty
-        run: |
-          [ -s backend/ngrok_b.yaml ] || { echo "❌ backend/ngrok_b.yaml is missing or empty"; exit 1; }
-          [ -s frontend/ngrok_a.yaml ] || { echo "❌ frontend/ngrok_a.yaml is missing or empty"; exit 1; }
+          echo "version: 3" > ./ngrok/ngrok_a.yaml
+          echo "agent:" >> ./ngrok/ngrok_a.yaml
+          echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_FRONTEND }}" >> ./ngrok/ngrok_a.yaml
+          echo "tunnels:" >> ./ngrok/ngrok_a.yaml
+          echo "  frontend:" >> ./ngrok/ngrok_a.yaml
+          echo "    proto: http" >> ./ngrok/ngrok_a.yaml
+          echo "    addr: 5173" >> ./ngrok/ngrok_a.yaml
+          echo "    hostname: bass-worthy-actively.ngrok-free.app" >> ./ngrok/ngrok_a.yaml
 
       # ✅ Docker Hub 로그인
       - name: Login to Docker Hub
@@ -75,48 +66,54 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./backend
-          file: ./backend/Dockerfile
           push: true
           tags: ${{ env.BACKEND_IMAGE }}:latest
+          no-cache: true
 
       # ✅ Frontend 이미지 빌드 & 푸시
       - name: Build and Push Frontend Image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
-          file: ./frontend/Dockerfile
           push: true
           tags: ${{ env.FRONTEND_IMAGE }}:latest
+          no-cache: true
 
-      # ✅ ngrok 설정 압축 후 EC2 전송
-      - name: Archive ngrok config files
-        run: tar -czf ngrok_configs.tar.gz backend/ngrok_b.yaml frontend/ngrok_a.yaml
+      # ✅ 필요한 설정 파일 압축
+      - name: Archive config files
+        run: |
+          tar -czf deploy_files.tar.gz \
+            backend/.env \
+            frontend/.env \
+            ngrok/ngrok_a.yaml \
+            ngrok/ngrok_b.yaml
 
-      - name: Upload ngrok configs to EC2
+      # ✅ EC2로 전송
+      - name: Upload config files to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ env.EC2_HOST }}
           username: ${{ env.EC2_USERNAME }}
           key: ${{ env.EC2_KEY }}
-          source: ngrok_configs.tar.gz
+          source: deploy_files.tar.gz
           target: /home/${{ env.EC2_USERNAME }}
 
-      # ✅ EC2에서 컨테이너 & ngrok 실행
-      - name: Deploy to EC2 and Run
+      # ✅ EC2에서 배포 및 ngrok 실행
+      - name: Deploy and Restart on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.EC2_HOST }}
           username: ${{ env.EC2_USERNAME }}
           key: ${{ env.EC2_KEY }}
-          port: ${{ secrets.PORT }}
+          port: 22
           script: |
             cd /home/${{ env.EC2_USERNAME }}
 
-            echo "📦 Extracting ngrok configs..."
-            tar -xzf ngrok_configs.tar.gz
-            rm ngrok_configs.tar.gz
+            echo "📦 Extracting deployment files..."
+            tar -xzf deploy_files.tar.gz
+            rm deploy_files.tar.gz
 
-            echo "🛑 Removing old containers..."
+            echo "🛑 Stopping old containers..."
             docker rm -f backend || true
             docker rm -f frontend || true
 
@@ -124,7 +121,7 @@ jobs:
             docker run -d \
               --name backend \
               --restart unless-stopped \
-              -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+              --env-file backend/.env \
               -p 5000:5000 \
               ${{ env.BACKEND_IMAGE }}:latest
 
@@ -132,11 +129,15 @@ jobs:
             docker run -d \
               --name frontend \
               --restart unless-stopped \
+              --env-file frontend/.env \
               -p 5173:5173 \
               ${{ env.FRONTEND_IMAGE }}:latest
 
+            echo "📂 Creating logs directory..."
+            mkdir -p logs
+
             echo "🚀 Starting ngrok backend..."
-            nohup ngrok start --all --config backend/ngrok_b.yaml > ngrok_backend.log 2>&1 &
+            nohup ngrok start --all --config ngrok/ngrok_b.yaml > logs/ngrok_backend.log 2>&1 &
 
             echo "🚀 Starting ngrok frontend..."
-            nohup ngrok start --all --config frontend/ngrok_a.yaml > ngrok_frontend.log 2>&1 &
+            nohup ngrok start --all --config ngrok/ngrok_a.yaml > logs/ngrok_frontend.log 2>&1 &
