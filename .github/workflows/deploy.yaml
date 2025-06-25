@@ -21,21 +21,19 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # >>>>>>>>>> .env for Backend 생성 위치 변경 (프로젝트 루트) <<<<<<<<<<
-      # 기존: ./backend/.env 에 생성
-      # 변경: 프로젝트 루트에 .env 파일을 생성합니다. (Dockerfile에서 이를 복사하도록)
-      - name: Generate .env for Backend (at project root)
+      # ✅ 루트에 .env 파일 생성 후 backend 폴더로 복사
+      - name: Generate .env for Backend
         run: |
-          # .env 파일은 이제 프로젝트 루트에 생성됩니다.
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > ./.env 
-          echo "ENV=production" >> ./.env
-          echo "BACKEND_DOMAIN=https://advanced-closely-garfish.ngrok-free.app" >> ./.env
-      # >>>>>>>>>> .env for Backend 생성 위치 변경 끝 <<<<<<<<<<
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+          echo "ENV=production" >> .env
+          echo "BACKEND_DOMAIN=https://advanced-closely-garfish.ngrok-free.app" >> .env
+          cp .env ./backend/.env
+
       - name: Generate .env for Frontend
         run: |
           echo "VITE_API_URL=https://bass-worthy-actively.ngrok-free.app" > ./frontend/.env
 
-      # ngrok config 파일 생성 스텝 (이전과 동일)
+      # ✅ ngrok 설정파일 생성
       - name: Generate ngrok_b.yaml for Backend
         run: |
           echo "agent:" > ./backend/ngrok_b.yaml
@@ -56,24 +54,13 @@ jobs:
           echo "    addr: 5173" >> ./frontend/ngrok_a.yaml
           echo "    hostname: bass-worthy-actively.ngrok-free.app" >> ./frontend/ngrok_a.yaml
 
-      # ngrok config 파일이 비어있지 않은지 확인 (이전과 동일)
-      - name: Ensure ngrok config files are not empty before tar
+      # ✅ ngrok 설정 파일 확인
+      - name: Ensure ngrok config files exist and are not empty
         run: |
-          echo "ngrok 설정 파일 내용이 비어있지 않은지 확인 중..."
-          if [ ! -s ./backend/ngrok_b.yaml ]; then
-            echo "❌ backend/ngrok_b.yaml 파일이 비어 있거나 존재하지 않습니다. Secrets 설정 및 생성 스텝을 다시 확인하세요."
-            ls -lh ./backend/ngrok_b.yaml
-            cat ./backend/ngrok_b.yaml
-            exit 1
-          fi
-          if [ ! -s ./frontend/ngrok_a.yaml ]; then
-            echo "❌ frontend/ngrok_a.yaml 파일이 비어 있거나 존재하지 않습니다. Secrets 설정 및 생성 스텝을 다시 확인하세요."
-            ls -lh ./frontend/ngrok_a.yaml
-            cat ./frontend/ngrok_a.yaml
-            exit 1
-          fi
-          echo "✅ ngrok 설정 파일들이 비어있지 않습니다."
+          [ -s backend/ngrok_b.yaml ] || { echo "❌ backend/ngrok_b.yaml is missing or empty"; exit 1; }
+          [ -s frontend/ngrok_a.yaml ] || { echo "❌ frontend/ngrok_a.yaml is missing or empty"; exit 1; }
 
+      # ✅ Docker Hub 로그인
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -83,12 +70,10 @@ jobs:
       - name: Build and Push Backend Image
         uses: docker/build-push-action@v5
         with:
-          context: ./backend # backend 폴더가 Docker build context
+          context: ./backend
           file: ./backend/Dockerfile
           push: true
           tags: ${{ env.BACKEND_IMAGE }}:latest
-          # build-args: # 필요한 경우 여기에 빌드 시 환경 변수 전달
-          #   OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
 
       - name: Build and Push Frontend Image
         uses: docker/build-push-action@v5
@@ -98,21 +83,21 @@ jobs:
           push: true
           tags: ${{ env.FRONTEND_IMAGE }}:latest
 
-      - name: Check ngrok config files exist
-        run: |
-          test -f backend/ngrok_b.yaml || { echo "❌ backend/ngrok_b.yaml 없음"; exit 1; }
-          test -f frontend/ngrok_a.yaml || { echo "❌ frontend/ngrok_a.yaml 없음"; exit 1; }
+      # ✅ ngrok 설정 압축 및 전송 (직접 tar)
+      - name: Archive ngrok config files
+        run: tar -czf ngrok_configs.tar.gz backend/ngrok_b.yaml frontend/ngrok_a.yaml
 
-      - name: Debug ngrok config files
-        run: |
-          echo "✅ 파일 목록 및 용량 확인"
-          ls -lh backend/ngrok_b.yaml frontend/ngrok_a.yaml
-          echo "✅ backend/ngrok_b.yaml 내용 확인"
-          cat backend/ngrok_b.yaml
-          echo "✅ frontend/ngrok_a.yaml 내용 확인"
-          cat frontend/ngrok_a.yaml
+      - name: Upload ngrok configs to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.EC2_USERNAME }}
+          key: ${{ env.EC2_KEY }}
+          source: ngrok_configs.tar.gz
+          target: /home/${{ env.EC2_USERNAME }}
 
-      - name: Deploy to EC2 and Run Containers + ngrok
+      # ✅ EC2로 배포 및 컨테이너 + ngrok 실행
+      - name: Deploy to EC2 and Run
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.EC2_HOST }}
@@ -120,52 +105,33 @@ jobs:
           key: ${{ env.EC2_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            echo "Pulling latest Docker images..."
-            docker pull ${{ env.BACKEND_IMAGE }}:latest
-            docker pull ${{ env.FRONTEND_IMAGE }}:latest
+            cd /home/${{ env.EC2_USERNAME }}
 
-            echo "Stopping and removing old containers..."
+            echo "📦 Extracting ngrok configs..."
+            tar -xzf ngrok_configs.tar.gz
+            rm ngrok_configs.tar.gz
+
+            echo "🛑 Removing old containers..."
             docker rm -f backend || true
             docker rm -f frontend || true
 
-            # ngrok config 파일을 압축하여 전송 및 EC2에서 압축 해제 (이전과 동일)
-            echo "Archiving ngrok config files locally..."
-            tar -czf ngrok_configs.tar.gz ./backend/ngrok_b.yaml ./frontend/ngrok_a.yaml
-
-            echo "Transferring ngrok_configs.tar.gz to EC2..."
-            echo "${{ env.EC2_KEY }}" > ec2_key.pem
-            chmod 600 ec2_key.pem
-            scp -o StrictHostKeyChecking=no -i ec2_key.pem ngrok_configs.tar.gz ${{ env.EC2_USERNAME }}@${{ env.EC2_HOST }}:/home/${{ env.EC2_USERNAME }}/
-            rm ec2_key.pem
-
-            echo "Extracting ngrok config files on EC2..."
-            tar -xzf /home/${{ env.EC2_USERNAME }}/ngrok_configs.tar.gz -C /home/${{ env.EC2_USERNAME }}/
-            rm /home/${{ env.EC2_USERNAME }}/ngrok_configs.tar.gz
-
-            # >>>>>>>>>> 백엔드 .env 파일 처리 수정 <<<<<<<<<<
-            # /home/${{ env.EC2_USERNAME }}/backend.env 파일을 생성할 필요가 없습니다.
-            # Dockerfile이 컨테이너 내부에 .env 파일을 복사할 것이기 때문입니다.
-            # 백엔드 .env 파일은 이제 Dockerfile을 통해 컨테이너 내부에 직접 복사됩니다.
-            # SSH 스크립트에서는 더 이상 이 파일을 생성하거나 마운트할 필요가 없습니다.
-
-            echo "Running backend container on port 5000..."
+            echo "🐳 Running backend container..."
             docker run -d \
               --name backend \
               --restart unless-stopped \
-              -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \ # <-- OPENAI_API_KEY를 -e로 직접 전달 유지
+              -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
               -p 5000:5000 \
               ${{ env.BACKEND_IMAGE }}:latest
-            # >>>>>>>>>> 백엔드 .env 파일 처리 수정 끝 <<<<<<<<<<
 
-            echo "Running frontend container on port 5173..."
+            echo "🐳 Running frontend container..."
             docker run -d \
               --name frontend \
               --restart unless-stopped \
               -p 5173:5173 \
               ${{ env.FRONTEND_IMAGE }}:latest
 
-            echo "Running ngrok for backend..."
-            nohup ngrok start --all --config /home/${{ env.EC2_USERNAME }}/backend/ngrok_b.yaml > /home/${{ env.EC2_USERNAME }}/ngrok_backend.log 2>&1 &
+            echo "🚀 Starting ngrok backend..."
+            nohup ngrok start --all --config backend/ngrok_b.yaml > ngrok_backend.log 2>&1 &
 
-            echo "Running ngrok for frontend..."
-            nohup ngrok start --all --config /home/${{ env.EC2_USERNAME }}/frontend/ngrok_a.yaml > /home/${{ env.EC2_USERNAME }}/ngrok_frontend.log 2>&1 &
+            echo "🚀 Starting ngrok frontend..."
+            nohup ngrok start --all --config frontend/ngrok_a.yaml > ngrok_frontend.log 2>&1 &
