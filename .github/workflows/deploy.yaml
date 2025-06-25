@@ -60,8 +60,8 @@ jobs:
           username: ${{ env.EC2_USERNAME }}
           key: ${{ env.EC2_KEY }}
           source: |
-            backend/ngrok_b.yml
-            frontend/ngrok_a.yml
+            backend/ngrok_b.yaml
+            frontend/ngrok_a.yaml
           target: /home/${{ env.EC2_USERNAME }}
 
       - name: Deploy to EC2 and Run Containers + ngrok
@@ -101,7 +101,7 @@ jobs:
               ${{ env.FRONTEND_IMAGE }}:latest
 
             echo "Running ngrok for backend..."
-            nohup ngrok start --all --config /home/${{ env.EC2_USERNAME }}/ngrok_b.yml > /home/${{ env.EC2_USERNAME }}/ngrok_backend.log 2>&1 &
+            nohup ngrok start --all --config /home/${{ env.EC2_USERNAME }}/ngrok_b.yaml > /home/${{ env.EC2_USERNAME }}/ngrok_backend.log 2>&1 &
 
             echo "Running ngrok for frontend..."
-            nohup ngrok start --all --config /home/${{ env.EC2_USERNAME }}/ngrok_a.yml > /home/${{ env.EC2_USERNAME }}/ngrok_frontend.log 2>&1 &
+            nohup ngrok start --all --config /home/${{ env.EC2_USERNAME }}/ngrok_a.yaml > /home/${{ env.EC2_USERNAME }}/ngrok_frontend.log 2>&1 &
