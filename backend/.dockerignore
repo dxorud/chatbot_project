@@ -1,0 +1,15 @@
+# ngrok 설정파일 제외 (보안)
+ngrok_b.yml
+
+# 환경 파일 제외
+.env
+
+# 파이썬 캐시 제외
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# 개발 툴 관련
+.vscode
+.DS_Store

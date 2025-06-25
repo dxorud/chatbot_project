@@ -9,7 +9,7 @@ export default defineConfig({
     strictPort: true,
     cors: true,
     allowedHosts: [
-      'advanced-closely-garfish.ngrok-free.app' 
+      'bass-worthy-actively.ngrok-free.app' 
     ]
   }
 })

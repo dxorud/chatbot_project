@@ -1,0 +1,14 @@
+# ngrok 설정파일 제외 (보안)
+ngrok_a.yml
+
+# 환경 파일 제외
+.env
+
+# 빌드/캐시 제외
+node_modules
+dist
+*.log
+
+# 개발 툴 관련
+.vscode
+.DS_Store

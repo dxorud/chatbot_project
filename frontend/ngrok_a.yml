@@ -1,0 +1,6 @@
+authtoken: 2ytVuPPrWBO61ECOfevBta4oMQs_33iUaFPAvnGLrkG4dm6qV
+tunnels:
+  frontend:
+    proto: http
+    addr: 5173
+    hostname: bass-worthy-actively.ngrok-free.app
