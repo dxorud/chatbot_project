@@ -21,7 +21,6 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # ✅ .env 파일 생성 및 저장
       - name: Generate .env for Backend
         run: |
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > ./backend/.env
@@ -32,7 +31,6 @@ jobs:
         run: |
           echo "VITE_API_URL=https://bass-worthy-actively.ngrok-free.app" > ./frontend/.env
 
-      # ✅ ngrok 설정 파일 생성
       - name: Generate ngrok config files
         run: |
           mkdir -p ./ngrok
@@ -54,14 +52,12 @@ jobs:
           echo "    addr: 5173" >> ./ngrok/ngrok_a.yaml
           echo "    hostname: bass-worthy-actively.ngrok-free.app" >> ./ngrok/ngrok_a.yaml
 
-      # ✅ Docker Hub 로그인
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # ✅ Backend 이미지 빌드 & 푸시
       - name: Build and Push Backend Image
         uses: docker/build-push-action@v5
         with:
@@ -70,7 +66,6 @@ jobs:
           tags: ${{ env.BACKEND_IMAGE }}:latest
           no-cache: true
 
-      # ✅ Frontend 이미지 빌드 & 푸시
       - name: Build and Push Frontend Image
         uses: docker/build-push-action@v5
         with:
@@ -79,7 +74,6 @@ jobs:
           tags: ${{ env.FRONTEND_IMAGE }}:latest
           no-cache: true
 
-      # ✅ 필요한 설정 파일 압축
       - name: Archive config files
         run: |
           tar -czf deploy_files.tar.gz \
@@ -88,7 +82,6 @@ jobs:
             ngrok/ngrok_a.yaml \
             ngrok/ngrok_b.yaml
 
-      # ✅ EC2로 전송
       - name: Upload config files to EC2
         uses: appleboy/scp-action@master
         with:
@@ -98,7 +91,6 @@ jobs:
           source: deploy_files.tar.gz
           target: /home/${{ env.EC2_USERNAME }}
 
-      # ✅ EC2에서 배포 및 ngrok 실행
       - name: Deploy and Restart on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -109,15 +101,15 @@ jobs:
           script: |
             cd /home/${{ env.EC2_USERNAME }}
 
-            echo "📦 Extracting deployment files..."
             tar -xzf deploy_files.tar.gz
             rm deploy_files.tar.gz
 
-            echo "🛑 Stopping old containers..."
             docker rm -f backend || true
             docker rm -f frontend || true
 
-            echo "🐳 Running backend container..."
+            docker pull ${{ env.BACKEND_IMAGE }}:latest
+            docker pull ${{ env.FRONTEND_IMAGE }}:latest
+
             docker run -d \
               --name backend \
               --restart unless-stopped \
@@ -125,7 +117,6 @@ jobs:
               -p 5000:5000 \
               ${{ env.BACKEND_IMAGE }}:latest
 
-            echo "🐳 Running frontend container..."
             docker run -d \
               --name frontend \
               --restart unless-stopped \
@@ -133,11 +124,7 @@ jobs:
               -p 5173:5173 \
               ${{ env.FRONTEND_IMAGE }}:latest
 
-            echo "📂 Creating logs directory..."
             mkdir -p logs
 
-            echo "🚀 Starting ngrok backend..."
             nohup ngrok start --all --config ngrok/ngrok_b.yaml > logs/ngrok_backend.log 2>&1 &
-
-            echo "🚀 Starting ngrok frontend..."
             nohup ngrok start --all --config ngrok/ngrok_a.yaml > logs/ngrok_frontend.log 2>&1 &

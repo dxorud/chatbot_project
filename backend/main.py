@@ -4,27 +4,31 @@ from database import Base, engine
 from login.router import router as login_router
 from analysis.routes import router as analysis_router
 from dotenv import load_dotenv
-load_dotenv()
+import os
 
+# ✅ .env 로드
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 
+# ✅ FastAPI 앱 생성
 app = FastAPI()
 
+# ✅ CORS 설정 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          
+    allow_origins=["https://advanced-closely-garfish.ngrok-free.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ✅ DB 테이블 생성
+# ✅ DB 테이블 자동 생성
 Base.metadata.create_all(bind=engine)
 
 # ✅ 라우터 등록
-app.include_router(login_router, prefix="/auth")           # 로그인/회원가입 라우터
-app.include_router(analysis_router, prefix="/analysis")    # 소비 분석 라우터
+app.include_router(login_router, prefix="/auth", tags=["Authentication"])
+app.include_router(analysis_router, prefix="/analysis", tags=["Analysis"])
 
-# ✅ 서버 상태 확인용 라우터
+# ✅ 서버 상태 확인용 기본 엔드포인트
 @app.get("/")
 def health_check():
-    return {"status": "Emotion FastAPI Server Running!"}
+    return {"status": "✅ Emotion FastAPI Server Running!"}

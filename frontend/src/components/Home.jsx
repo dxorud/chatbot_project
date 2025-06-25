@@ -1,13 +1,16 @@
 import React, { useRef } from 'react';
 import './Home.css';
-import chatbotImage from '../assets/chatbot.png'; 
+import chatbotImage from '../assets/chatbot.png';
 
-// 아이콘 예시 (직접 파일 import하거나 SVG 사용 가능)
+// 아이콘 이미지
 import icon1 from '../assets/1.png';
 import icon2 from '../assets/2.png';
 import icon3 from '../assets/3.png';
 import icon4 from '../assets/4.png';
 import icon5 from '../assets/5.png';
+
+// react-icons (npm install react-icons)
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 export default function Home() {
   const cardRef = useRef(null);
@@ -33,15 +36,21 @@ export default function Home() {
       {/* 상단 Hero */}
       <section className="hero-section">
         <div className="hero-text">
-          <h1>감정 소비 챗봇에 오신 것을 환영합니다 💡</h1>
-          <p>소비를 기록하고 분석하는 새로운 경험을 시작해보세요!</p>
+          <h1 className="welcome-title">감정 소비 챗봇에 오신 것을 환영합니다</h1>
+          <div className="welcome-subtitle">
+            <span>💡</span>
+            <span>소비를 기록하고 분석하는 새로운 경험을 시작해보세요!</span>
+          </div>
         </div>
         <img src={chatbotImage} alt="감정 다이어리 챗봇" className="hero-image" />
       </section>
 
-      {/* 카드 슬라이드 */}
+      {/* 카드 슬라이더 */}
       <section className="card-section">
-        <button className="arrow left" onClick={scrollLeft}>{'<'}</button>
+        <button className="carousel-arrow arrow-left" onClick={scrollLeft}>
+          <FaChevronLeft />
+        </button>
+
         <div className="card-container no-scrollbar" ref={cardRef}>
           {features.map((feature, index) => (
             <div className="feature-card" key={index}>
@@ -51,7 +60,10 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <button className="arrow right" onClick={scrollRight}>{'>'}</button>
+
+        <button className="carousel-arrow arrow-right" onClick={scrollRight}>
+          <FaChevronRight />
+        </button>
       </section>
     </div>
   );
