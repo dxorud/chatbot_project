@@ -53,6 +53,11 @@ jobs:
           push: true
           tags: ${{ env.FRONTEND_IMAGE }}:latest
 
+      - name: Check ngrok config files exist
+        run: |
+          test -f backend/ngrok_b.yaml || { echo "❌ backend/ngrok_b.yaml 없음"; exit 1; }
+          test -f frontend/ngrok_a.yaml || { echo "❌ frontend/ngrok_a.yaml 없음"; exit 1; }
+
       - name: Upload ngrok config files to EC2
         uses: appleboy/scp-action@master
         with:
