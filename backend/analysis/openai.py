@@ -1,18 +1,20 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv # 다른 .env 변수를 위해 이 줄은 유지합니다.
 from openai import OpenAI
 
-# ✅ .env 환경 변수 로드
-load_dotenv()
-
-# ✅ OpenAI API 키 확인
+# 먼저 os.environ (Docker의 -e 옵션으로 전달된 환경 변수)에서 API 키를 가져옵니다.
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# ❗ 예외 처리: 키가 설정되지 않았을 경우 오류 출력
+# 만약 os.environ에 API 키가 없다면, 그 다음에 .env 파일을 로드하여 시도합니다.
+# 이 조건은 Docker -e 옵션을 사용하지 않을 때 .env 파일에서 키를 찾을 때 유용합니다.
 if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY가 .env 파일에 설정되어 있지 않습니다.")
+    load_dotenv() # .env 파일을 로드합니다.
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") # .env 파일에서 다시 가져옵니다.
 
-# ✅ OpenAI 클라이언트 초기화
+# 최종적으로 API 키가 설정되었는지 확인
+if not OPENAI_API_KEY:
+    raise ValueError("OPENAI_API_KEY 환경 변수가 설정되지 않았습니다. GitHub Secrets, Dockerfile, 또는 .env 파일 설정을 확인하세요.")
+
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # 🔍 AI 소비 분석 요약 함수
