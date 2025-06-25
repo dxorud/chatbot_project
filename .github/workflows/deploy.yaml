@@ -58,6 +58,15 @@ jobs:
           test -f backend/ngrok_b.yaml || { echo "❌ backend/ngrok_b.yaml 없음"; exit 1; }
           test -f frontend/ngrok_a.yaml || { echo "❌ frontend/ngrok_a.yaml 없음"; exit 1; }
 
+      - name: Debug ngrok config files
+        run: |
+          echo "✅ 파일 목록 및 용량 확인"
+          ls -lh backend/ngrok_b.yaml frontend/ngrok_a.yaml
+          echo "✅ backend/ngrok_b.yaml 내용 확인"
+          cat backend/ngrok_b.yaml
+          echo "✅ frontend/ngrok_a.yaml 내용 확인"
+          cat frontend/ngrok_a.yaml
+
       - name: Upload ngrok config files to EC2
         uses: appleboy/scp-action@master
         with:
