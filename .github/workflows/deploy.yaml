@@ -36,7 +36,7 @@ jobs:
       # ✅ ngrok_b.yaml (Backend) - v3 형식
       - name: Generate ngrok_b.yaml for Backend
         run: |
-          echo "version: 2" > ./backend/ngrok_b.yaml
+          echo "version: 3" > ./backend/ngrok_b.yaml
           echo "agent:" >> ./backend/ngrok_b.yaml
           echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_BACKEND }}" >> ./backend/ngrok_b.yaml
           echo "tunnels:" >> ./backend/ngrok_b.yaml
@@ -48,7 +48,7 @@ jobs:
       # ✅ ngrok_a.yaml (Frontend) - v3 형식
       - name: Generate ngrok_a.yaml for Frontend
         run: |
-          echo "version: 2" > ./frontend/ngrok_a.yaml
+          echo "version: 3" > ./frontend/ngrok_a.yaml
           echo "agent:" >> ./frontend/ngrok_a.yaml
           echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_FRONTEND }}" >> ./frontend/ngrok_a.yaml
           echo "tunnels:" >> ./frontend/ngrok_a.yaml
