@@ -33,10 +33,11 @@ jobs:
         run: |
           echo "VITE_API_URL=https://bass-worthy-actively.ngrok-free.app" > ./frontend/.env
 
-      # ✅ ngrok 설정파일 생성
+      # ✅ ngrok 설정파일 생성 - Backend
       - name: Generate ngrok_b.yaml for Backend
         run: |
-          echo "agent:" > ./backend/ngrok_b.yaml
+          echo "version: 2" > ./backend/ngrok_b.yaml
+          echo "agent:" >> ./backend/ngrok_b.yaml
           echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_BACKEND }}" >> ./backend/ngrok_b.yaml
           echo "tunnels:" >> ./backend/ngrok_b.yaml
           echo "  backend:" >> ./backend/ngrok_b.yaml
@@ -44,9 +45,11 @@ jobs:
           echo "    addr: 5000" >> ./backend/ngrok_b.yaml
           echo "    hostname: advanced-closely-garfish.ngrok-free.app" >> ./backend/ngrok_b.yaml
 
+      # ✅ ngrok 설정파일 생성 - Frontend
       - name: Generate ngrok_a.yaml for Frontend
         run: |
-          echo "agent:" > ./frontend/ngrok_a.yaml
+          echo "version: 2" > ./frontend/ngrok_a.yaml
+          echo "agent:" >> ./frontend/ngrok_a.yaml
           echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_FRONTEND }}" >> ./frontend/ngrok_a.yaml
           echo "tunnels:" >> ./frontend/ngrok_a.yaml
           echo "  frontend:" >> ./frontend/ngrok_a.yaml
@@ -83,7 +86,7 @@ jobs:
           push: true
           tags: ${{ env.FRONTEND_IMAGE }}:latest
 
-      # ✅ ngrok 설정 압축 및 전송 (직접 tar)
+      # ✅ ngrok 설정 압축 및 전송
       - name: Archive ngrok config files
         run: tar -czf ngrok_configs.tar.gz backend/ngrok_b.yaml frontend/ngrok_a.yaml
 
@@ -96,7 +99,7 @@ jobs:
           source: ngrok_configs.tar.gz
           target: /home/${{ env.EC2_USERNAME }}
 
-      # ✅ EC2로 배포 및 컨테이너 + ngrok 실행
+      # ✅ EC2에 배포 및 ngrok 실행
       - name: Deploy to EC2 and Run
         uses: appleboy/ssh-action@master
         with:
