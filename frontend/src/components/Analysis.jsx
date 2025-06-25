@@ -17,6 +17,7 @@ export default function Analysis() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -39,29 +40,35 @@ export default function Analysis() {
     }
 
     try {
+      setLoading(true);
       setError('');
       const start = startDate.toISOString().split("T")[0];
       const end = endDate.toISOString().split("T")[0];
-      const url = `https://advanced-closely-garfish.ngrok-free.app/analysis/${username}?start=${start}&end=${end}&mode=range`;
+      const url = `https://advanced-closely-garfish.ngrok-free.app/analysis/${username}?start_date=${start}&end_date=${end}&mode=range`;
       const res = await axios.get(url);
       setData(res.data.data);
       setSummary(res.data.ai_summary);
     } catch (err) {
       console.error('범위 분석 실패:', err);
       setError('해당 범위의 데이터를 찾을 수 없습니다.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRecent7Analysis = async () => {
     try {
+      setLoading(true);
       setError('');
-      const url = `https://advanced-closely-garfish.ngrok-free.app/analysis/${username}?mode=recent&today=2025-06-26`;
+      const url = `https://advanced-closely-garfish.ngrok-free.app/analysis/${username}?mode=recent`;
       const res = await axios.get(url);
       setData(res.data.data);
       setSummary(res.data.ai_summary);
     } catch (err) {
       console.error('최근 7일 분석 실패:', err);
       setError('최근 7일 데이터를 찾을 수 없습니다.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,15 +115,14 @@ export default function Analysis() {
           dateFormat="yyyy-MM-dd"
           className="datepicker-input"
         />
-        <button onClick={handleRangeAnalysis}>범위 분석</button>
+        <button onClick={handleRangeAnalysis} disabled={!startDate || !endDate}>범위 분석</button>
         <button onClick={handleRecent7Analysis}>최근 7일 분석</button>
       </div>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
+      {loading && <p>🔄 분석 데이터를 불러오는 중입니다...</p>}
 
-      {!data && !error ? (
-        <p>분석 데이터를 불러오는 중입니다...</p>
-      ) : data ? (
+      {data && (
         <>
           <div className="analysis-card-row">
             <div className="analysis-card">
@@ -146,9 +152,7 @@ export default function Analysis() {
               <h3>📊 지출 항목 그래프</h3>
               {expenseData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    data={expenseData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <BarChart data={expenseData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis tickFormatter={(value) => value.toLocaleString()} />
@@ -175,7 +179,8 @@ export default function Analysis() {
                       cx="50%"
                       cy="50%"
                       outerRadius={100}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}>
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                    >
                       {emotionData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
@@ -197,7 +202,7 @@ export default function Analysis() {
             </div>
           </div>
         </>
-      ) : null}
+      )}
     </div>
   );
 }

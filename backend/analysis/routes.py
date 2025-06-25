@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query, Depends
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from .s3 import get_user_data
@@ -28,9 +28,8 @@ async def get_analysis(
     # 📅 날짜 설정
     fixed_today = None
     if mode == "recent":
-        fixed_today = datetime.strptime("2025-06-26", "%Y-%m-%d")
-        # 최근 7일로 자동 설정
-        start_date = (fixed_today.replace(hour=0, minute=0, second=0) - timedelta(days=6)).strftime("%Y-%m-%d")
+        fixed_today = datetime.now()  # ✅ 현재 날짜로 자동 설정
+        start_date = (fixed_today - timedelta(days=6)).strftime("%Y-%m-%d")
         end_date = fixed_today.strftime("%Y-%m-%d")
 
     elif mode == "range":
