@@ -31,11 +31,12 @@ jobs:
         run: |
           echo "VITE_API_URL=https://bass-worthy-actively.ngrok-free.app" > ./frontend/.env
 
-      # >>>>>>>>>> ngrok config 파일 생성 스텝 시작 <<<<<<<<<<
+      # >>>>>>>>>> ngrok config 파일 생성 스텝 시작 (agent: 키 추가 및 들여쓰기 수정) <<<<<<<<<<
       # ngrok_b.yaml 파일 생성 (backend)
       - name: Generate ngrok_b.yaml for Backend
         run: |
-          echo "authtoken: ${{ secrets.NGROK_AUTH_TOKEN_BACKEND }}" > ./backend/ngrok_b.yaml
+          echo "agent:" > ./backend/ngrok_b.yaml   # agent: 키 추가
+          echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_BACKEND }}" >> ./backend/ngrok_b.yaml # authtoken 들여쓰기
           echo "tunnels:" >> ./backend/ngrok_b.yaml
           echo "  backend:" >> ./backend/ngrok_b.yaml # ngrok_b.yaml 내용과 일치시킴
           echo "    proto: http" >> ./backend/ngrok_b.yaml
@@ -45,7 +46,8 @@ jobs:
       # ngrok_a.yaml 파일 생성 (frontend)
       - name: Generate ngrok_a.yaml for Frontend
         run: |
-          echo "authtoken: ${{ secrets.NGROK_AUTH_TOKEN_FRONTEND }}" > ./frontend/ngrok_a.yaml
+          echo "agent:" > ./frontend/ngrok_a.yaml   # agent: 키 추가
+          echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_FRONTEND }}" >> ./frontend/ngrok_a.yaml # authtoken 들여쓰기
           echo "tunnels:" >> ./frontend/ngrok_a.yaml
           echo "  frontend:" >> ./frontend/ngrok_a.yaml # ngrok_a.yaml 내용과 일치시킴
           echo "    proto: http" >> ./frontend/ngrok_a.yaml
@@ -100,11 +102,11 @@ jobs:
 
       - name: Debug ngrok config files
         run: |
-          echo " 파일 목록 및 용량 확인"
+          echo "✅ 파일 목록 및 용량 확인"
           ls -lh backend/ngrok_b.yaml frontend/ngrok_a.yaml
-          echo " backend/ngrok_b.yaml 내용 확인"
+          echo "✅ backend/ngrok_b.yaml 내용 확인"
           cat backend/ngrok_b.yaml
-          echo " frontend/ngrok_a.yaml 내용 확인"
+          echo "✅ frontend/ngrok_a.yaml 내용 확인"
           cat frontend/ngrok_a.yaml
 
       - name: Upload ngrok config files to EC2
