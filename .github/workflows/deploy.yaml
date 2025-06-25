@@ -31,6 +31,24 @@ jobs:
         run: |
           echo "VITE_API_URL=https://bass-worthy-actively.ngrok-free.app" > ./frontend/.env
 
+      # 새롭게 추가된 ngrok config 파일 생성 단계
+      - name: Generate ngrok_b.yaml for Backend
+        run: |
+          echo "authtoken: ${{ secrets.NGROK_AUTH_TOKEN_BACKEND }}" > ./backend/ngrok_b.yaml
+          echo "tunnels:" >> ./backend/ngrok_b.yaml
+          echo "  backend_api:" >> ./backend/ngrok_b.yaml
+          echo "    addr: 5000" >> ./backend/ngrok_b.yaml
+          echo "    proto: http" >> ./backend/ngrok_b.yaml
+
+      # 새롭게 추가된 ngrok config 파일 생성 단계
+      - name: Generate ngrok_a.yaml for Frontend
+        run: |
+          echo "authtoken: ${{ secrets.NGROK_AUTH_TOKEN_FRONTEND }}" > ./frontend/ngrok_a.yaml
+          echo "tunnels:" >> ./frontend/ngrok_a.yaml
+          echo "  frontend_app:" >> ./frontend/ngrok_a.yaml
+          echo "    addr: 5173" >> ./frontend/ngrok_a.yaml
+          echo "    proto: http" >> ./frontend/ngrok_a.yaml
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -53,11 +71,7 @@ jobs:
           push: true
           tags: ${{ env.FRONTEND_IMAGE }}:latest
 
-      - name: Check ngrok config files exist
-        run: |
-          test -f backend/ngrok_b.yaml || { echo "❌ backend/ngrok_b.yaml 없음"; exit 1; }
-          test -f frontend/ngrok_a.yaml || { echo "❌ frontend/ngrok_a.yaml 없음"; exit 1; }
-
+      # 파일 생성 후 존재 여부와 내용 확인하는 디버그 단계 (이제 이 단계는 성공해야 함)
       - name: Debug ngrok config files
         run: |
           echo "✅ 파일 목록 및 용량 확인"
