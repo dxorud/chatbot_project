@@ -21,7 +21,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # ✅ 루트에 .env 파일 생성 후 backend 폴더로 복사
+      # ✅ 루트에 .env 생성 후 backend로 복사
       - name: Generate .env for Backend
         run: |
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "VITE_API_URL=https://bass-worthy-actively.ngrok-free.app" > ./frontend/.env
 
-      # ✅ ngrok 설정파일 생성 - Backend
+      # ✅ ngrok_b.yaml (Backend) - v3 형식
       - name: Generate ngrok_b.yaml for Backend
         run: |
           echo "version: 2" > ./backend/ngrok_b.yaml
@@ -45,7 +45,7 @@ jobs:
           echo "    addr: 5000" >> ./backend/ngrok_b.yaml
           echo "    hostname: advanced-closely-garfish.ngrok-free.app" >> ./backend/ngrok_b.yaml
 
-      # ✅ ngrok 설정파일 생성 - Frontend
+      # ✅ ngrok_a.yaml (Frontend) - v3 형식
       - name: Generate ngrok_a.yaml for Frontend
         run: |
           echo "version: 2" > ./frontend/ngrok_a.yaml
@@ -57,7 +57,7 @@ jobs:
           echo "    addr: 5173" >> ./frontend/ngrok_a.yaml
           echo "    hostname: bass-worthy-actively.ngrok-free.app" >> ./frontend/ngrok_a.yaml
 
-      # ✅ ngrok 설정 파일 확인
+      # ✅ 설정 파일 확인
       - name: Ensure ngrok config files exist and are not empty
         run: |
           [ -s backend/ngrok_b.yaml ] || { echo "❌ backend/ngrok_b.yaml is missing or empty"; exit 1; }
@@ -70,6 +70,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
+      # ✅ Backend 이미지 빌드 & 푸시
       - name: Build and Push Backend Image
         uses: docker/build-push-action@v5
         with:
@@ -78,6 +79,7 @@ jobs:
           push: true
           tags: ${{ env.BACKEND_IMAGE }}:latest
 
+      # ✅ Frontend 이미지 빌드 & 푸시
       - name: Build and Push Frontend Image
         uses: docker/build-push-action@v5
         with:
@@ -86,7 +88,7 @@ jobs:
           push: true
           tags: ${{ env.FRONTEND_IMAGE }}:latest
 
-      # ✅ ngrok 설정 압축 및 전송
+      # ✅ ngrok 설정 압축 후 EC2 전송
       - name: Archive ngrok config files
         run: tar -czf ngrok_configs.tar.gz backend/ngrok_b.yaml frontend/ngrok_a.yaml
 
@@ -99,7 +101,7 @@ jobs:
           source: ngrok_configs.tar.gz
           target: /home/${{ env.EC2_USERNAME }}
 
-      # ✅ EC2에 배포 및 ngrok 실행
+      # ✅ EC2에서 컨테이너 & ngrok 실행
       - name: Deploy to EC2 and Run
         uses: appleboy/ssh-action@master
         with:

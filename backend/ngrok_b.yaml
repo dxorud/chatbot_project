@@ -4,7 +4,7 @@ agent:
   authtoken: 2ywrcWdseqjmYsK1wCgUQnY8bRy_3hcA9Qy5fK5ReSArxmoDi
 
 tunnels:
-  frontend:
+  backend:
     proto: http
-    addr: 5173
-    hostname: bass-worthy-actively.ngrok-free.app
+    addr: 5000
+    hostname: advanced-closely-garfish.ngrok-free.app
