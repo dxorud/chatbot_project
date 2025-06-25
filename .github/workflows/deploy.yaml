@@ -31,24 +31,26 @@ jobs:
         run: |
           echo "VITE_API_URL=https://bass-worthy-actively.ngrok-free.app" > ./frontend/.env
 
-      # >>>>>>>>>> 여기부터 ngrok config 파일 생성 스텝 <<<<<<<<<<
+      # >>>>>>>>>> ngrok config 파일 생성 스텝 시작 <<<<<<<<<<
+      # ngrok_b.yaml 파일 생성 (backend)
       - name: Generate ngrok_b.yaml for Backend
         run: |
           echo "authtoken: ${{ secrets.NGROK_AUTH_TOKEN_BACKEND }}" > ./backend/ngrok_b.yaml
           echo "tunnels:" >> ./backend/ngrok_b.yaml
-          echo "  backend:" >> ./backend/ngrok_b.yaml # ngrok_b.yaml의 터널 이름과 일치시킴
+          echo "  backend:" >> ./backend/ngrok_b.yaml # ngrok_b.yaml 내용과 일치시킴
           echo "    proto: http" >> ./backend/ngrok_b.yaml
           echo "    addr: 5000" >> ./backend/ngrok_b.yaml
-          echo "    hostname: advanced-closely-garfish.ngrok-free.app" >> ./backend/ngrok_b.yaml # ngrok_b.yaml의 hostname과 일치시킴
+          echo "    hostname: advanced-closely-garfish.ngrok-free.app" >> ./backend/ngrok_b.yaml # ngrok_b.yaml 내용과 일치시킴
 
+      # ngrok_a.yaml 파일 생성 (frontend)
       - name: Generate ngrok_a.yaml for Frontend
         run: |
           echo "authtoken: ${{ secrets.NGROK_AUTH_TOKEN_FRONTEND }}" > ./frontend/ngrok_a.yaml
           echo "tunnels:" >> ./frontend/ngrok_a.yaml
-          echo "  frontend:" >> ./frontend/ngrok_a.yaml # ngrok_a.yaml의 터널 이름과 일치시킴
+          echo "  frontend:" >> ./frontend/ngrok_a.yaml # ngrok_a.yaml 내용과 일치시킴
           echo "    proto: http" >> ./frontend/ngrok_a.yaml
           echo "    addr: 5173" >> ./frontend/ngrok_a.yaml
-          echo "    hostname: bass-worthy-actively.ngrok-free.app" >> ./frontend/ngrok_a.yaml # ngrok_a.yaml의 hostname과 일치시킴
+          echo "    hostname: bass-worthy-actively.ngrok-free.app" >> ./frontend/ngrok_a.yaml # ngrok_a.yaml 내용과 일치시킴
       # >>>>>>>>>> ngrok config 파일 생성 스텝 끝 <<<<<<<<<<
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -86,6 +88,7 @@ jobs:
           echo "✅ frontend/ngrok_a.yaml 내용 확인"
           cat frontend/ngrok_a.yaml
 
+      # >>>>>>>>>> scp source 경로 수정 시작 <<<<<<<<<<
       - name: Upload ngrok config files to EC2
         uses: appleboy/scp-action@master
         with:
@@ -93,9 +96,10 @@ jobs:
           username: ${{ env.EC2_USERNAME }}
           key: ${{ env.EC2_KEY }}
           source: |
-            backend/ngrok_b.yaml
-            frontend/ngrok_a.yaml
+            ./backend/ngrok_b.yaml  # 상대 경로임을 명시
+            ./frontend/ngrok_a.yaml # 상대 경로임을 명시
           target: /home/${{ env.EC2_USERNAME }}
+      # >>>>>>>>>> scp source 경로 수정 끝 <<<<<<<<<<
 
       - name: Deploy to EC2 and Run Containers + ngrok
         uses: appleboy/ssh-action@master
