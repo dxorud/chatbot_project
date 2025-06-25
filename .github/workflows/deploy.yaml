@@ -52,6 +52,25 @@ jobs:
           echo "    addr: 5173" >> ./frontend/ngrok_a.yaml
           echo "    hostname: bass-worthy-actively.ngrok-free.app" >> ./frontend/ngrok_a.yaml # ngrok_a.yaml 내용과 일치시킴
       # >>>>>>>>>> ngrok config 파일 생성 스텝 끝 <<<<<<<<<<
+      # >>>>>>>>>> 새로 추가된 스텝: ngrok config 파일이 비어있지 않은지 확인 <<<<<<<<<<
+      - name: Ensure ngrok config files are not empty
+        run: |
+          echo "ngrok 설정 파일 내용이 비어있지 않은지 확인 중..."
+          # -s 옵션은 파일이 존재하고 크기가 0보다 큰지 (즉, 비어있지 않은지) 확인합니다.
+          if [ ! -s ./backend/ngrok_b.yaml ]; then
+            echo "❌ backend/ngrok_b.yaml 파일이 비어 있거나 존재하지 않습니다. Secrets 설정 및 생성 스텝을 다시 확인하세요."
+            ls -lh ./backend/ngrok_b.yaml # 디버깅 정보 추가
+            cat ./backend/ngrok_b.yaml    # 디버깅 정보 추가
+            exit 1
+          fi
+          if [ ! -s ./frontend/ngrok_a.yaml ]; then
+            echo "❌ frontend/ngrok_a.yaml 파일이 비어 있거나 존재하지 않습니다. Secrets 설정 및 생성 스텝을 다시 확인하세요."
+            ls -lh ./frontend/ngrok_a.yaml # 디버깅 정보 추가
+            cat ./frontend/ngrok_a.yaml    # 디버깅 정보 추가
+            exit 1
+          fi
+          echo "✅ ngrok 설정 파일들이 비어있지 않습니다."
+      # >>>>>>>>>> 새로 추가된 스텝 끝 <<<<<<<<<<
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -88,7 +107,6 @@ jobs:
           echo "✅ frontend/ngrok_a.yaml 내용 확인"
           cat frontend/ngrok_a.yaml
 
-      # >>>>>>>>>> scp source 경로 수정 시작 <<<<<<<<<<
       - name: Upload ngrok config files to EC2
         uses: appleboy/scp-action@master
         with:
@@ -99,7 +117,6 @@ jobs:
             ./backend/ngrok_b.yaml  # 상대 경로임을 명시
             ./frontend/ngrok_a.yaml # 상대 경로임을 명시
           target: /home/${{ env.EC2_USERNAME }}
-      # >>>>>>>>>> scp source 경로 수정 끝 <<<<<<<<<<
 
       - name: Deploy to EC2 and Run Containers + ngrok
         uses: appleboy/ssh-action@master
