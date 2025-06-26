@@ -18,47 +18,55 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+      - name: 📥 Checkout source code
         uses: actions/checkout@v4
 
-      - name: Generate .env for Backend
+      - name: ⚙️ Generate .env for Backend
         run: |
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > ./backend/.env
           echo "ENV=production" >> ./backend/.env
           echo "BACKEND_DOMAIN=https://advanced-closely-garfish.ngrok-free.app" >> ./backend/.env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ./backend/.env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ./backend/.env
+          echo "S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}" >> ./backend/.env
 
-      - name: Generate .env for Frontend
+      - name: ⚙️ Generate .env for Frontend
         run: |
           echo "VITE_API_URL=https://bass-worthy-actively.ngrok-free.app" > ./frontend/.env
 
-      - name: Generate ngrok config files
+      - name: ⚙️ Generate ngrok config files
         run: |
           mkdir -p ./ngrok
-          echo "version: 3" > ./ngrok/ngrok_b.yaml
-          echo "agent:" >> ./ngrok/ngrok_b.yaml
-          echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_BACKEND }}" >> ./ngrok/ngrok_b.yaml
-          echo "tunnels:" >> ./ngrok/ngrok_b.yaml
-          echo "  backend:" >> ./ngrok/ngrok_b.yaml
-          echo "    proto: http" >> ./ngrok/ngrok_b.yaml
-          echo "    addr: 5000" >> ./ngrok/ngrok_b.yaml
-          echo "    hostname: advanced-closely-garfish.ngrok-free.app" >> ./ngrok/ngrok_b.yaml
 
-          echo "version: 3" > ./ngrok/ngrok_a.yaml
-          echo "agent:" >> ./ngrok/ngrok_a.yaml
-          echo "  authtoken: ${{ secrets.NGROK_AUTH_TOKEN_FRONTEND }}" >> ./ngrok/ngrok_a.yaml
-          echo "tunnels:" >> ./ngrok/ngrok_a.yaml
-          echo "  frontend:" >> ./ngrok/ngrok_a.yaml
-          echo "    proto: http" >> ./ngrok/ngrok_a.yaml
-          echo "    addr: 5173" >> ./ngrok/ngrok_a.yaml
-          echo "    hostname: bass-worthy-actively.ngrok-free.app" >> ./ngrok/ngrok_a.yaml
+          cat <<EOF > ./ngrok/ngrok_b.yaml
+          version: 3
+          agent:
+            authtoken: ${{ secrets.NGROK_AUTH_TOKEN_BACKEND }}
+          tunnels:
+            backend:
+              proto: http
+              addr: 5000
+              hostname: advanced-closely-garfish.ngrok-free.app
+          EOF
 
-      - name: Login to Docker Hub
+          cat <<EOF > ./ngrok/ngrok_a.yaml
+          version: 3
+          agent:
+            authtoken: ${{ secrets.NGROK_AUTH_TOKEN_FRONTEND }}
+          tunnels:
+            frontend:
+              proto: http
+              addr: 5173
+              hostname: bass-worthy-actively.ngrok-free.app
+          EOF
+
+      - name: 🔐 Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build and Push Backend Image
+      - name: 🐳 Build and Push Backend Image
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -66,7 +74,7 @@ jobs:
           tags: ${{ env.BACKEND_IMAGE }}:latest
           no-cache: true
 
-      - name: Build and Push Frontend Image
+      - name: 🐳 Build and Push Frontend Image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -74,7 +82,7 @@ jobs:
           tags: ${{ env.FRONTEND_IMAGE }}:latest
           no-cache: true
 
-      - name: Archive config files
+      - name: 📦 Archive config files
         run: |
           tar -czf deploy_files.tar.gz \
             backend/.env \
@@ -82,7 +90,7 @@ jobs:
             ngrok/ngrok_a.yaml \
             ngrok/ngrok_b.yaml
 
-      - name: Upload config files to EC2
+      - name: 📤 Upload config files to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ env.EC2_HOST }}
@@ -91,7 +99,7 @@ jobs:
           source: deploy_files.tar.gz
           target: /home/${{ env.EC2_USERNAME }}
 
-      - name: Deploy and Restart on EC2
+      - name: 🚀 Deploy and Restart on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.EC2_HOST }}
