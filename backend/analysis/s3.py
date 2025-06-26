@@ -8,18 +8,21 @@ from dotenv import load_dotenv
 # ✅ .env에서 AWS 키 로드
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 
-# ✅ 버킷 이름은 하드코딩 (직접 입력)
-BUCKET_NAME = "kibwa-10"  # ← 여기만 직접 작성
-FOLDER = "project/"       # 예: project/김소연_20250401~20250430.json
+# ✅ 버킷 이름은 코드에 직접 입력 (변수명은 그대로 유지)
+S3_BUCKET_NAME = "kibwa-10"
+FOLDER = "project/"  # 예: project/김소연_20250401~20250430.json
 
-# ✅ boto3 클라이언트 (키는 .env에서 로드)
-s3 = boto3.client("s3")
+# ✅ boto3 클라이언트 (키는 .env에서 불러오고, 리전은 명시)
+s3 = boto3.client(
+    "s3",
+    region_name="ap-southeast-2"  # ← 시드니 리전 (버킷과 일치해야 함)
+)
 
 def find_and_merge_s3_data(name: str, start_date: str, end_date: str):
     s = datetime.strptime(start_date, "%Y-%m-%d")
     e = datetime.strptime(end_date, "%Y-%m-%d")
 
-    response = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix=FOLDER)
+    response = s3.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix=FOLDER)
     matched_files = []
 
     for obj in response.get("Contents", []):
@@ -34,7 +37,7 @@ def find_and_merge_s3_data(name: str, start_date: str, end_date: str):
 
     merged_data = []
     for key in matched_files:
-        obj = s3.get_object(Bucket=BUCKET_NAME, Key=key)
+        obj = s3.get_object(Bucket=S3_BUCKET_NAME, Key=key)
         content = obj["Body"].read().decode("utf-8")
         json_data = json.loads(content)
 
