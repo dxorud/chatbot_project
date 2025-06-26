@@ -200,8 +200,12 @@ export default function Analysis() {
                   data={Object.entries(data.emotionSum).map(([name, value]) => ({ name: name || '기타', value }))}
                   dataKey="value"
                   nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
                   outerRadius={100}
-                  label
+                  paddingAngle={2}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 >
                   {Object.entries(data.emotionSum).map(([emo], i) => (
                     <Cell key={`cell-${i}`} fill={EMOTION_COLORS[emo || '기타'] || '#ccc'} />

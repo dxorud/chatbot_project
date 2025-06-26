@@ -119,7 +119,6 @@
   box-shadow: 0 4px 12px rgba(124, 77, 255, 0.3);
 }
 
-
 /* ✅ 차트 영역 */
 .charts-row {
   display: flex;
@@ -140,6 +139,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ✅ 파이차트 중앙 텍스트 */
+.recharts-wrapper .donut-center-label {
+  font-size: 16px;
+  fill: #4b0082;
+  dominant-baseline: middle;
+  text-anchor: middle;
 }
 
 /* ✅ AI 요약 */
@@ -240,7 +247,7 @@
 
 /* ✅ 현재 월(June 2025) 스타일 */
 .react-datepicker__current-month {
-  font-size: 1rem;         /* ✔️ 글자 작게 */
+  font-size: 1rem;
   font-weight: 600;
   color: #4b0082;
   display: flex;
