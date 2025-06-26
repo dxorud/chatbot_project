@@ -5,12 +5,15 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 
-# ✅ .env에서 환경 변수 로드
+# ✅ .env에서 AWS 키 로드
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 
-s3 = boto3.client('s3')
-BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
-FOLDER = 'project/'  # 예: project/김소연_20250401~20250430.json
+# ✅ 버킷 이름은 하드코딩 (직접 입력)
+BUCKET_NAME = "kibwa-10"  # ← 여기만 직접 작성
+FOLDER = "project/"       # 예: project/김소연_20250401~20250430.json
+
+# ✅ boto3 클라이언트 (키는 .env에서 로드)
+s3 = boto3.client("s3")
 
 def find_and_merge_s3_data(name: str, start_date: str, end_date: str):
     s = datetime.strptime(start_date, "%Y-%m-%d")

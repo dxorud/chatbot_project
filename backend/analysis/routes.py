@@ -9,7 +9,7 @@ from collections import defaultdict
 router = APIRouter()
 
 
-# ✅ username으로 이름(name) 가져오기
+# ✅ username을 통해 사용자 name 조회
 def get_name_by_username(username: str, db: Session) -> str:
     user = db.query(User).filter(User.username == username).first()
     if not user:
@@ -33,13 +33,13 @@ def get_timeseries(
     # 사용자 이름 가져오기
     name = get_name_by_username(username, db)
 
-    # S3 데이터 가져오기
+    # S3에서 데이터 조회 및 병합
     result = find_and_merge_s3_data(name, start_date, end_date)
 
-    # ✅ 날짜 오름차순 정렬
+    # 날짜 오름차순 정렬
     result.sort(key=lambda x: x["date"])
 
-    # ✅ category, emotion 집계
+    # category, emotion 통계 집계
     category_sum = defaultdict(int)
     emotion_sum = defaultdict(int)
     for item in result:
@@ -47,14 +47,14 @@ def get_timeseries(
         emotion_sum[item["emotion"]] += 1
 
     return {
-        "timeseries": result,       # 라인 차트
-        "details": result,          # 테이블
-        "categorySum": category_sum,  # 바 차트
-        "emotionSum": emotion_sum     # 파이 차트
+        "timeseries": result,        # 라인 차트
+        "details": result,           # 테이블
+        "categorySum": category_sum, # 바 차트
+        "emotionSum": emotion_sum    # 파이 차트
     }
 
 
-# ✅ AI 요약 요청 API
+# ✅ AI 소비 요약 요청 API
 @router.post("/summary")
 def get_ai_summary(data: dict = Body(...)):
     timeseries = data.get("data", [])
