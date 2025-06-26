@@ -6,17 +6,17 @@ from analysis.routes import router as analysis_router
 from dotenv import load_dotenv
 import os
 
-# ✅ .env 로드
+
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 
-# ✅ FastAPI 앱 생성
+
 app = FastAPI()
 
 # ✅ CORS 설정 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://bass-worthy-actively.ngrok-free.app"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,  # ✅ 이때는 credentials 사용 불가 (쿠키/세션 등)
     allow_methods=["*"],
     allow_headers=["*"],
 )
